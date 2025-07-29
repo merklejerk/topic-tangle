@@ -1,18 +1,17 @@
 import express from 'express';
 import cors from 'cors';
-import type { RoomConfig, UserSelection, CreateRoomRequest, SubmitSelectionRequest } from './types';
-import { DataStore } from './dataStore';
+import type { RoomConfig, UserSelection, CreateRoomRequest, SubmitSelectionRequest, IDataStore } from './types';
 import { GroupCreator } from './groupCreator';
 import { authMiddleware } from './auth';
 import { generateIcebreakerQuestions } from './chatgpt';
 
 declare module 'express-serve-static-core' {
-  interface Request {
-    userId?: string;
-  }
+	interface Request {
+		userId?: string;
+	}
 }
 
-const createTangleMiddleware = () => {
+const createTangleMiddleware = (dataStore: IDataStore) => {
     const router = express.Router();
 
     // Middleware
@@ -20,7 +19,7 @@ const createTangleMiddleware = () => {
     router.use(express.json());
 
     // Create a new room
-    router.post('/api/rooms', authMiddleware, (req, res) => {
+    router.post('/api/rooms', authMiddleware, async (req, res) => {
         try {
             const { organizerId, topics, minGroupSize, maxGroupSize }: CreateRoomRequest = req.body;
             const userId = req.userId;
@@ -75,7 +74,7 @@ const createTangleMiddleware = () => {
                 createdAt: new Date()
             };
 
-            DataStore.createRoom(room);
+            await dataStore.createRoom(room);
             console.log(`Room created: ${room.id} by organizer ${organizerId}`);
             res.status(201).json(room);
         } catch (error) {
@@ -85,10 +84,10 @@ const createTangleMiddleware = () => {
     });
 
     // Get room by ID
-    router.get('/api/rooms/:roomId', (req, res) => {
+    router.get('/api/rooms/:roomId', async (req, res) => {
         try {
             const { roomId } = req.params;
-            const room = DataStore.getRoom(roomId);
+            const room = await dataStore.getRoom(roomId);
 
             if (!room) {
                 return res.status(404).json({ error: 'Room not found' });
@@ -102,7 +101,7 @@ const createTangleMiddleware = () => {
     });
 
     // Submit user selection
-    router.post('/api/rooms/:roomId/selections', authMiddleware, (req, res) => {
+    router.post('/api/rooms/:roomId/selections', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
             const userId = req.userId; // Use authenticated userId from middleware
@@ -114,12 +113,12 @@ const createTangleMiddleware = () => {
                 });
             }
 
-            const room = DataStore.getRoom(roomId);
+            const room = await dataStore.getRoom(roomId);
             if (!room) {
                 return res.status(404).json({ error: 'Room not found' });
             }
 
-            const results = DataStore.getRoomResults(roomId);
+            const results = await dataStore.getRoomResults(roomId);
             if (results) {
                 return res.status(403).json({ error: 'Selections cannot be modified after results are generated' });
             }
@@ -135,11 +134,11 @@ const createTangleMiddleware = () => {
             };
 
             if (filteredTopics.length === 0) {
-                DataStore.deleteUserSelection(userId, roomId);
+                await dataStore.deleteUserSelection(userId, roomId);
                 return res.status(200).json({ success: true, message: 'Selection cleared' });
             }
 
-            DataStore.submitUserSelection(selection);
+            await dataStore.submitUserSelection(selection);
             res.status(200).json({ success: true });
         } catch (error) {
             console.error('Error submitting selection:', error);
@@ -148,26 +147,26 @@ const createTangleMiddleware = () => {
     });
 
     // Delete user selection
-    router.delete('/api/rooms/:roomId/selections', authMiddleware, (req, res) => {
+    router.delete('/api/rooms/:roomId/selections', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
-            const userId = req.userId; // Use authenticated userId from middleware
+            const userId = req.userId;
 
             if (!userId) {
                 return res.status(400).json({ error: 'Invalid request: userId is required' });
             }
 
-            const room = DataStore.getRoom(roomId);
+            const room = await dataStore.getRoom(roomId);
             if (!room) {
                 return res.status(404).json({ error: 'Room not found' });
             }
 
-            const results = DataStore.getRoomResults(roomId);
+            const results = await dataStore.getRoomResults(roomId);
             if (results) {
                 return res.status(403).json({ error: 'Selections cannot be deleted after results are generated' });
             }
 
-            DataStore.deleteUserSelection(userId, roomId);
+            await dataStore.deleteUserSelection(userId, roomId);
             res.status(200).json({ success: true, message: 'Selection deleted' });
         } catch (error) {
             console.error('Error deleting selection:', error);
@@ -179,8 +178,8 @@ const createTangleMiddleware = () => {
     router.post('/api/rooms/:roomId/breakout', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
-            const userId = req.userId; // Authenticated userId from middleware
-            const room = DataStore.getRoom(roomId);
+            const userId = req.userId;
+            const room = await dataStore.getRoom(roomId);
 
             if (!room) {
                 return res.status(404).json({ error: 'Room not found' });
@@ -190,7 +189,7 @@ const createTangleMiddleware = () => {
                 return res.status(403).json({ error: 'Only the organizer can create breakout groups' });
             }
 
-            const selections = DataStore.getUserSelections(roomId);
+            const selections = await dataStore.getUserSelections(roomId);
             const results = GroupCreator.createBreakoutGroups(room, selections);
 
             // Generate icebreaker questions for all group topics
@@ -207,7 +206,7 @@ const createTangleMiddleware = () => {
                     .find(data => data.topic === topicName)?.questions || [];
             }
 
-            DataStore.storeRoomResults(results);
+            await dataStore.storeRoomResults(results);
 
             console.log(`Breakout groups created for room ${roomId}: ${results.groups.length} groups, ${results.unassignedUsers.length} unassigned`);
             res.json(results);
@@ -217,12 +216,12 @@ const createTangleMiddleware = () => {
         }
     });
 
-    router.get('/api/rooms/:roomId/data', authMiddleware, (req, res) => {
+    router.get('/api/rooms/:roomId/data', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
             const userId = req.userId;
 
-            const room = DataStore.getRoom(roomId);
+            const room = await dataStore.getRoom(roomId);
             if (!room) {
                 return res.status(404).json({ error: 'Room not found' });
             }
@@ -231,14 +230,15 @@ const createTangleMiddleware = () => {
                 return res.status(403).json({ error: 'Unauthorized' });
             }
 
-            const selections = DataStore.getUserSelections(roomId);
-            const results = DataStore.getRoomResults(roomId);
+            const selections = await dataStore.getUserSelections(roomId);
+            const results = await dataStore.getRoomResults(roomId);
             if (results || room.organizerId === userId) {
-                // Organizer: return all selections.
+                // Organizers can see all selections.
                 return res.json({ selections, results });
             } else {
-                // Non-organizer: return only the calling user's selection.
-                const userSelection = DataStore.getUserSelections(roomId).find(selection => selection.userId === userId);
+                // Non-organizers can only see their own selections.
+                const userSelections = await dataStore.getUserSelections(roomId);
+                const userSelection = userSelections.find(selection => selection.userId === userId);
                 return res.json({ selections: [userSelection], results });
             }
         } catch (error) {

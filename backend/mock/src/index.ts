@@ -2,6 +2,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import express from 'express';
 import { createTangleMiddleware } from './server';
+import { InMemoryDataStore } from './dataStore';
 
 const argv = yargs(hideBin(process.argv))
 	.option('port', {
@@ -22,7 +23,8 @@ const argv = yargs(hideBin(process.argv))
 const { port, host } = argv;
 
 const app = express();
-app.use(createTangleMiddleware());
+const dataStore = new InMemoryDataStore();
+app.use(createTangleMiddleware(dataStore));
 
 app.listen(port, host, () => {
 	console.log(`🚀 Topic Tangle Mock Backend running at http://${host}:${port}`);

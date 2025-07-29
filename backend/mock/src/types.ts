@@ -43,11 +43,27 @@ export interface CreateRoomRequest {
 }
 
 export interface SubmitSelectionRequest {
-	userId: string;
 	selectedTopics: string[];
 }
 
 export interface RoomData {
 	selections: UserSelection[];
 	results: RoomResults | null;
+}
+
+export interface IDataStore {
+    createRoom(room: RoomConfig): Promise<void>;
+    getRoom(roomId: string): Promise<RoomConfig | null>;
+    getAllRooms(): Promise<RoomConfig[]>;
+    submitUserSelection(selection: UserSelection): Promise<void>;
+    deleteUserSelection(userId: string, roomId: string): Promise<void>;
+    getUserSelections(roomId: string): Promise<UserSelection[]>;
+    storeRoomResults(results: RoomResults): Promise<void>;
+    getRoomResults(roomId: string): Promise<RoomResults | null>;
+    reset(): Promise<void>;
+    getStats(): Promise<{
+        rooms: number;
+        totalUserSelections: number;
+        roomResults: number;
+    }>;
 }
