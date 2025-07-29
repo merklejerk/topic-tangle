@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
 	import QRCode from 'qrcode';
 	import { RoomAPI } from '$lib/api';
@@ -6,8 +7,6 @@
 	import { getUserId } from '$lib/crypto';
 	import ParticipationStats from '$lib/components/ParticipationStats.svelte';
 	import type { RoomConfig, UserSelection, RoomResults } from '$lib/types';
-
-	export let data: { tangleId: string };
 
 	let room: RoomConfig | null = null;
 	let userSelections: UserSelection[] = [];
@@ -19,6 +18,7 @@
 	let qrCodeDataUrl = '';
 	let currentUrl = '';
 	let cleanupPolling: (() => void) | null = null;
+	let tangleId: string | null = null;
 
 
 	let userId: string = '';
@@ -26,6 +26,7 @@
 
 	onMount(async () => {
 		currentUrl = window.location.href;
+		tangleId = $page.url.searchParams.get('id');
 		userId = await getUserId('user');
 		await generateQRCode();
 		await loadRoom();
@@ -54,9 +55,10 @@
 	}
 
 	async function loadRoom() {
+		if (!tangleId) return;
 		try {
 			// Load room from API
-			room = await RoomAPI.getRoom(data.tangleId);
+			room = await RoomAPI.getRoom(tangleId);
 			
 			if (room) {
 				// Load room data (selections and results)
@@ -159,7 +161,7 @@
 </script>
 
 <svelte:head>
-	<title>Tangle {data.tangleId} - Topic Tangle</title>
+	<title>Tangle {tangleId} - Topic Tangle</title>
 </svelte:head>
 
 <div class="container">

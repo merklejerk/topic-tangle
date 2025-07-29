@@ -49,7 +49,7 @@
 				isActive: true
 			});
 			
-			goto(`/tangle/${room.id}`);
+			goto(`/tangle?id=${room.id}`);
 		} catch (error) {
 			console.error('Failed to create room:', error);
 			alert('Failed to create tangle. Please try again.');
