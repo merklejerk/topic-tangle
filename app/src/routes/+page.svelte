@@ -3,6 +3,7 @@
 	import { RoomAPI } from '$lib/api';
 	import { getUserId } from '$lib/crypto';
 	import { RangeSlider } from 'svelte-range-slider-pips';	
+	import { base } from '$app/paths';
 
 	let topics: string[] = ['React', 'AI', 'Startups', 'Web Development', 'Data Science'];
 	let currentTopic = '';
@@ -49,7 +50,7 @@
 				isActive: true
 			});
 			
-			goto(`/tangle?id=${room.id}`);
+			goto(`${base}/tangle?id=${room.id}`);
 		} catch (error) {
 			console.error('Failed to create room:', error);
 			alert('Failed to create tangle. Please try again.');
