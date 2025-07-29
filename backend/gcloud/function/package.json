@@ -5,13 +5,13 @@
   "license": "MIT",
   "private": true,
   "author": "Lawrence Forman <me@merklejerk.com>",
-  "type": "module",
+  "type": "commonjs",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "watch": "tsc -w",
-    "prestart": "npm run build",
+    "build": "esbuild src/index.ts --bundle --platform=node --tsconfig=./tsconfig.json --outfile=dist/index.js --format=cjs --target=es2022 --sourcemap --external:'@google-cloud/datastore' --external:'@google-cloud/functions-framework'",
+    "watch": "npm run build -- --watch",
+    "dev:start": "npm run build && npx @google-cloud/functions-framework --target=tangle",
     "start": "npx @google-cloud/functions-framework --target=tangle",
     "datastore-emulator": "gcloud --project tangle beta emulators datastore start --no-store-on-disk",
     "dev": "concurrently -k \"npm:watch\" \"npm run dev:build --prefix ../../mock\" \"npm run datastore-emulator\" \"nodemon --watch dist/index.js --watch .env --exec \\\"npx @google-cloud/functions-framework --target=tangle\\\"\""

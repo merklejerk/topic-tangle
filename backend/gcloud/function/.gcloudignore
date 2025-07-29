@@ -1,0 +1,8 @@
+#!include:.gitignore
+!dist
+!package.json
+src
+.git
+node_modules
+package-lock.json
+tsconfig.json

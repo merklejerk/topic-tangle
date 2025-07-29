@@ -1,4 +1,7 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 import express from 'express';
 import express5 from 'express5';
 import { http } from '@google-cloud/functions-framework';
