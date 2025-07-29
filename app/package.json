@@ -1,7 +1,9 @@
 {
 	"name": "app",
 	"private": true,
-	"version": "0.0.1",
+	"license": "MIT",
+	"author": "Lawrence Forman <me@merklejerk.com>",
+	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -25,10 +27,8 @@
 		"vite": "^7.0.4"
 	},
 	"dependencies": {
-		"jose": "^6.0.12",
 		"js-cookie": "^3.0.5",
 		"qrcode": "^1.5.4",
-		"svelte-range-slider-pips": "^4.0.7",
-		"uuid": "^11.1.0"
+		"svelte-range-slider-pips": "^4.0.7"
 	}
 }

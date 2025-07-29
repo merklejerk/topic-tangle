@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import type { RoomConfig, UserSelection, CreateRoomRequest, SubmitSelectionRequest, IDataStore } from './types';
-import { GroupCreator } from './groupCreator';
+import { GroupCreator } from './group_creator';
 import { authMiddleware } from './auth';
 import { generateIcebreakerQuestions } from './chatgpt';
 
@@ -19,7 +19,7 @@ const createTangleMiddleware = (dataStore: IDataStore) => {
     router.use(express.json());
 
     // Create a new room
-    router.post('/api/rooms', authMiddleware, async (req, res) => {
+    router.post('/rooms', authMiddleware, async (req, res) => {
         try {
             const { organizerId, topics, minGroupSize, maxGroupSize }: CreateRoomRequest = req.body;
             const userId = req.userId;
@@ -84,7 +84,7 @@ const createTangleMiddleware = (dataStore: IDataStore) => {
     });
 
     // Get room by ID
-    router.get('/api/rooms/:roomId', async (req, res) => {
+    router.get('/rooms/:roomId', async (req, res) => {
         try {
             const { roomId } = req.params;
             const room = await dataStore.getRoom(roomId);
@@ -101,7 +101,7 @@ const createTangleMiddleware = (dataStore: IDataStore) => {
     });
 
     // Submit user selection
-    router.post('/api/rooms/:roomId/selections', authMiddleware, async (req, res) => {
+    router.post('/rooms/:roomId/selections', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
             const userId = req.userId; // Use authenticated userId from middleware
@@ -147,7 +147,7 @@ const createTangleMiddleware = (dataStore: IDataStore) => {
     });
 
     // Delete user selection
-    router.delete('/api/rooms/:roomId/selections', authMiddleware, async (req, res) => {
+    router.delete('/rooms/:roomId/selections', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
             const userId = req.userId;
@@ -175,7 +175,7 @@ const createTangleMiddleware = (dataStore: IDataStore) => {
     });
 
     // Create breakout groups (tangle!)
-    router.post('/api/rooms/:roomId/breakout', authMiddleware, async (req, res) => {
+    router.post('/rooms/:roomId/breakout', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
             const userId = req.userId;
@@ -216,7 +216,7 @@ const createTangleMiddleware = (dataStore: IDataStore) => {
         }
     });
 
-    router.get('/api/rooms/:roomId/data', authMiddleware, async (req, res) => {
+    router.get('/rooms/:roomId/data', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
             const userId = req.userId;
