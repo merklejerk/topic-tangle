@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { base } from '$app/paths';
 </script>
 
 <nav class="nav">
 	<div class="nav-content">
-		<a href="/" class="logo">
+		<a href="{base}/" class="logo">
 			<span class="logo-text">Topic Tangle</span>
 		</a>
 		
 		{#if $page.url.pathname !== '/'}
-			<a href="/" class="nav-link">
+			<a href="{base}/" class="nav-link">
 				← Create New Tangle
 			</a>
 		{/if}
