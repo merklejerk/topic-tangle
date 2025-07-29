@@ -4,6 +4,7 @@ import type { RoomConfig, UserSelection, CreateRoomRequest, SubmitSelectionReque
 import { DataStore } from './dataStore';
 import { GroupCreator } from './groupCreator';
 import { authMiddleware } from './auth';
+import { generateIcebreakerQuestions } from './chatgpt';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -175,7 +176,7 @@ const createTangleMiddleware = () => {
     });
 
     // Create breakout groups (tangle!)
-    router.post('/api/rooms/:roomId/breakout', authMiddleware, (req, res) => {
+    router.post('/api/rooms/:roomId/breakout', authMiddleware, async (req, res) => {
         try {
             const { roomId } = req.params;
             const userId = req.userId; // Authenticated userId from middleware
@@ -191,9 +192,23 @@ const createTangleMiddleware = () => {
 
             const selections = DataStore.getUserSelections(roomId);
             const results = GroupCreator.createBreakoutGroups(room, selections);
-            
+
+            // Generate icebreaker questions for all group topics
+            const allTopics = results.groups.flatMap(group => group.assignedTopics.map(topicId => {
+                const topic = room.topics.find(t => t.id === topicId);
+                return topic ? topic.name : null;
+            })).filter((topic): topic is string => topic !== null);
+
+            const icebreakerData = await generateIcebreakerQuestions(allTopics);
+
+            for (const group of results.groups) {
+                const topicName = room.topics.find(t => t.id === group.assignedTopics[0])?.name;
+                group.icebreakerQuestions = icebreakerData
+                    .find(data => data.topic === topicName)?.questions || [];
+            }
+
             DataStore.storeRoomResults(results);
-            
+
             console.log(`Breakout groups created for room ${roomId}: ${results.groups.length} groups, ${results.unassignedUsers.length} unassigned`);
             res.json(results);
         } catch (error) {
