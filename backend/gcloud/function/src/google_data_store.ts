@@ -10,8 +10,9 @@ export class GoogleDataStore implements IDataStore {
 
     constructor() {
         this.datastore = new Datastore({
+            databaseId: process.env.DATASTORE_DATASET,
             projectId: process.env.DATASTORE_PROJECT_ID,
-            apiEndpoint: process.env.DATASTORE_HOST,
+            apiEndpoint: process.env.DATASTORE_HOST || undefined,
         });
     }
 
