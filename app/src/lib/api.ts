@@ -148,23 +148,28 @@ export class RoomAPI {
 
 	static createPollingSubscription<T>(
 		fetchFn: () => Promise<T>,
-		callback: (data: T) => void,
+		callback: (data: T) => boolean, // Return false to stop polling
 		interval: number = this.POLL_INTERVAL
 	): () => void {
-		let timeoutId: ReturnType<typeof setTimeout>;
-		
+		let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
 		const poll = async () => {
 			try {
 				const data = await fetchFn();
-				callback(data);
+				const shouldContinue = callback(data);
+
+				if (shouldContinue) {
+					timeoutId = setTimeout(poll, interval);
+				}
 			} catch (error) {
 				console.error('Polling error:', error);
+				// Optionally decide if you want to continue polling on error
+				timeoutId = setTimeout(poll, interval);
 			}
-			timeoutId = setTimeout(poll, interval);
 		};
 
 		poll(); // Start immediately
-		
+
 		// Return cleanup function
 		return () => {
 			if (timeoutId) {

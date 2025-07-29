@@ -34,10 +34,15 @@
 	});
 
 	onDestroy(() => {
+		stopPolling();
+	});
+
+	function stopPolling() {
 		if (cleanupPolling) {
 			cleanupPolling();
+			cleanupPolling = null;
 		}
-	});
+	}
 
 	async function generateQRCode() {
 		try {
@@ -76,16 +81,20 @@
 
 		try {
 			const { selections, results } = await RoomAPI.getRoomData(room.id);
-			console.log(results);
 			userSelections = selections;
 			roomResults = results;
+
+			const currentUserSelection = userSelections.find((s) => s.userId === userId);
+			if (currentUserSelection) {
+				selectedTopics = currentUserSelection.selectedTopics;
+			}
 		} catch (error) {
 			console.error('Failed to load room data:', error);
 		}
 	}
 
 	function setupPolling() {
-		if (!room) return;
+		if (!room || roomResults) return;
 
 		// Poll for room data (selections and results)
 		cleanupPolling = RoomAPI.createPollingSubscription(
@@ -94,7 +103,15 @@
 				userSelections = selections;
 				if (results) {
 					roomResults = results;
+					return false; // Stop polling when results are available
 				}
+				const currentUserSelection = selections.find((s) => s.userId === userId);
+				if (currentUserSelection) {
+					selectedTopics = currentUserSelection.selectedTopics;
+				} else {
+					selectedTopics = [];
+				}
+				return true; // Continue polling otherwise
 			}
 		);
 	}
@@ -137,6 +154,9 @@
 		isTangling = true;
 		try {
 			roomResults = await RoomAPI.createBreakoutGroups(room.id, userId);
+			if (roomResults) {
+				stopPolling();
+			}
 		} catch (error) {
 			console.error('Failed to create breakout groups:', error);
 			alert('Failed to create breakout groups. Please try again.');
