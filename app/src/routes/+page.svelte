@@ -72,6 +72,8 @@
 			
 			<div class="form-section">
 				<h3>Discussion Topics</h3>
+				<p class="help-text">Add topics that participants can choose from (minimum 2)</p>
+
 				<div class="topic-input">
 					<input
 						type="text"
@@ -101,9 +103,13 @@
 							</div>
 						{/each}
 					</div>
+					<div class="clear-button-container">
+						<button type="button" on:click={() => topics = []} disabled={isCreating} class="clear-button">
+							Clear All
+						</button>
+					</div>
 				{/if}
 				
-				<p class="help-text">Add topics that participants can choose from (minimum 2)</p>
 			</div>
 
 			<div class="form-section">
@@ -269,7 +275,6 @@
 	.help-text {
 		color: #6b7280;
 		font-size: 0.9rem;
-		margin: 0;
 	}
 
 	.create-button {
@@ -291,6 +296,31 @@
 
 	.create-button:disabled {
 		background: #9ca3af;
+		cursor: not-allowed;
+	}
+
+	.clear-button-container {
+		text-align: right;
+		margin-top: -0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.clear-button {
+		background: none;
+		color: #2563eb;
+		border: none;
+		cursor: pointer;
+		font-size: 0.9rem;
+		text-decoration: underline;
+		padding: 0;
+	}
+
+	.clear-button:hover:not(:disabled) {
+		color: #1d4ed8;
+	}
+
+	.clear-button:disabled {
+		color: #9ca3af;
 		cursor: not-allowed;
 	}
 </style>

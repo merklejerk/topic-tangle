@@ -47,7 +47,7 @@
 	async function generateQRCode() {
 		try {
 			qrCodeDataUrl = await QRCode.toDataURL(currentUrl, {
-				width: 200,
+				width: 384,
 				margin: 2,
 				color: {
 					dark: '#000000',
@@ -376,19 +376,29 @@
 		flex-wrap: wrap;
 	}
 
+	.qr-code {
+		width: 100%;
+		text-align: center;
+		margin-bottom: 1rem;
+	}
+
 	.qr-code img {
+		width: 300px;
+		margin: 0 auto;
 		border-radius: 0.5rem;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
 	.link-section {
-		flex: 1;
+		width: 100%;
 		display: flex;
+		justify-content: center;
 		gap: 0.5rem;
 	}
 
 	.link-section input {
 		flex: 1;
+		max-width: 300px;
 		padding: 0.75rem;
 		border: 1px solid #d1d5db;
 		border-radius: 0.5rem;
