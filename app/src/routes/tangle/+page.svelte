@@ -82,7 +82,9 @@
 		try {
 			const { selections, results } = await RoomAPI.getRoomData(room.id);
 			userSelections = selections;
-			roomResults = results;
+			if (results) {
+				roomResults = results;
+			}
 
 			const currentUserSelection = userSelections.find((s) => s.userId === userId);
 			if (currentUserSelection) {
@@ -178,6 +180,14 @@
 
 	$: isUserOrganizer = room ? (userId === room.organizerId) : false;
 	$: selectedTopicNames = room ? room.topics.filter(t => selectedTopics.includes(t.id)).map(t => t.name) : [];
+
+	$: if (roomResults) {
+		roomResults.groups.forEach(group => {
+			group.icebreakerQuestions = group.icebreakerQuestions.map(question => 
+				question.replace(/\[.*?\]\(.*?\)/g, '') // Remove markdown links
+			);
+		});
+	}
 </script>
 
 <svelte:head>
