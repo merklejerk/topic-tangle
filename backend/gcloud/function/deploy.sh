@@ -16,5 +16,5 @@ gcloud functions deploy "$SERVICE_NAME" \
     --entry-point=tangle \
     --trigger-http \
     --allow-unauthenticated \
-    --memory 128Mi \
+    --memory 384Mi \
     --set-env-vars "$ENV_VARS"
