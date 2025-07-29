@@ -35,6 +35,9 @@ export class GroupCreator {
 
 		const processed = new Set<string>();
 
+		// Adjust minGroupSize to be at most the number of users
+		const minGroupSize = Math.min(room.minGroupSize, usersWithTopics.length);
+
 		// Calculate all possible user pairs and their topic overlaps
 		const userPairs = this.calculateUserPairs(usersWithTopics);
 		
@@ -72,7 +75,7 @@ export class GroupCreator {
 			this.expandGroup(group, usersWithTopics, processed, room.maxGroupSize);
 
 			// Only add group if it meets minimum size
-			if (group.members.length >= room.minGroupSize) {
+			if (group.members.length >= minGroupSize) {
 				groups.push(group);
 			} else {
 				// Remove processed users if group is too small
