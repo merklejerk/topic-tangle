@@ -61,11 +61,6 @@
 </script>
 
 <div class="container">
-	<header>
-		<h1>Topic Tangle</h1>
-		<p>Create breakout groups based on shared interests</p>
-	</header>
-
 	<main>
 		<div class="create-form">
 			<h2>Create a New Tangle</h2>
@@ -149,22 +144,6 @@
 		margin: 0 auto;
 		padding: 2rem;
 		font-family: system-ui, -apple-system, sans-serif;
-	}
-
-	header {
-		text-align: center;
-		margin-bottom: 3rem;
-	}
-
-	h1 {
-		color: #2563eb;
-		font-size: 2.5rem;
-		margin-bottom: 0.5rem;
-	}
-
-	header p {
-		color: #6b7280;
-		font-size: 1.1rem;
 	}
 
 	.create-form {

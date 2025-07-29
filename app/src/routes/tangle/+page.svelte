@@ -268,17 +268,13 @@
 				</div>
 
 				{#if selectedTopics.length > 0}
-					<div class="selection-summary">
-						<h3>Your Selections ({selectedTopics.length}/{maxSelections}):</h3>
-						<p>{selectedTopicNames.join(', ')}</p>
-						<div class="auto-save-status">
-							{#if isSubmitting}
-								<span class="saving">💾 Saving...</span>
-							{:else}
-								<span class="saved">✅ Saved automatically</span>
-							{/if}
-						</div>
-					</div>
+				<div class="auto-save-status">
+					{#if isSubmitting}
+						<span class="saving">💾</span>
+					{:else}
+						<span class="saved">✅</span>
+					{/if}
+				</div>
 				{/if}
 			</div>
 		{:else}
@@ -480,17 +476,10 @@
 		cursor: not-allowed;
 	}
 
-	.selection-summary {
-		background: #eff6ff;
-		border: 1px solid #bfdbfe;
-		border-radius: 0.5rem;
-		padding: 1rem;
-		margin-top: 1.5rem;
-	}
-
 	.auto-save-status {
 		margin-top: 0.75rem;
 		font-size: 0.875rem;
+		text-align: right;
 	}
 
 	.saving {
