@@ -13,10 +13,13 @@
     "watch": "tsc -w",
     "prestart": "npm run build",
     "start": "npx @google-cloud/functions-framework --target=tangle",
-    "dev": "concurrently -k \"npm:watch\" \"npm run dev:build --prefix ../../mock\" \"nodemon --watch dist/index.js --watch .env.* --exec \\\"npx @google-cloud/functions-framework --target=tangle\\\"\""
+    "datastore-emulator": "gcloud --project tangle beta emulators datastore start --no-store-on-disk",
+    "dev": "concurrently -k \"npm:watch\" \"npm run dev:build --prefix ../../mock\" \"npm run datastore-emulator\" \"nodemon --watch dist/index.js --watch .env --exec \\\"npx @google-cloud/functions-framework --target=tangle\\\"\""
   },
   "dependencies": {
+    "@google-cloud/datastore": "^10.0.1",
     "@google-cloud/functions-framework": "^4.0.0",
+    "dotenv": "^17.2.1",
     "mock": "file:../../mock"
   },
   "devDependencies": {
