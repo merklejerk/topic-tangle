@@ -27,8 +27,8 @@ jobs:
         run: npm run build
         env:
           BASE_PATH: /topic-tangle
-          VITE_API_BASE_URL: ${VITE_API_BASE_URL}
-          VITE_POLL_INTERVAL: ${VITE_POLL_INTERVAL}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_POLL_INTERVAL: ${{ vars.VITE_POLL_INTERVAL }}
         working-directory: ./app
 
       - name: Deploy to GitHub Pages
