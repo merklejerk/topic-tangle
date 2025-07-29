@@ -8,8 +8,8 @@
 		<a href="{base}/" class="logo">
 			<span class="logo-text">Topic Tangle</span>
 		</a>
-		
-		{#if $page.url.pathname !== '/'}
+
+		{#if $page.url.pathname !== `${base}/`}
 			<a href="{base}/" class="nav-link">
 				← Create New Tangle
 			</a>
