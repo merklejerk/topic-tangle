@@ -64,8 +64,8 @@ export class GroupCreator {
 				id: uuidv4(),
 				roomId: room.id,
 				members: [pair.user1.userId, pair.user2.userId],
-				assignedTopics: [this.selectGroupTopic(pair.commonTopics)], // Single topic
-				icebreakerQuestions: this.generateIcebreakerQuestions()
+				assignedTopics: [this.selectGroupTopic(pair.commonTopics, [pair.user1, pair.user2])], // Single topic
+				icebreakerQuestions: [],
 			};
 
 			processed.add(pair.user1.userId);
@@ -86,6 +86,20 @@ export class GroupCreator {
 		}
 
 		// Handle remaining unprocessed users
+		if (groups.length === 0 && sortedPairs.length > 0 && sortedPairs[0].commonTopics.length > 0) {
+			const bestPair = sortedPairs[0];
+			const group: BreakoutGroup = {
+				id: uuidv4(),
+				roomId: room.id,
+				members: [bestPair.user1.userId, bestPair.user2.userId],
+				assignedTopics: [this.selectGroupTopic(bestPair.commonTopics, [bestPair.user1, bestPair.user2])],
+				icebreakerQuestions: [],
+			};
+			processed.add(bestPair.user1.userId);
+			processed.add(bestPair.user2.userId);
+			groups.push(group);
+		}
+		
 		this.assignRemainingUsers(groups, usersWithTopics, processed, room);
 
 		return groups;
@@ -179,8 +193,8 @@ export class GroupCreator {
 					id: uuidv4(),
 					roomId: room.id,
 					members: [user.userId],
-					assignedTopics: [this.selectGroupTopic(user.topics)],
-					icebreakerQuestions: this.generateIcebreakerQuestions()
+					assignedTopics: [this.selectGroupTopic(user.topics, [user])],
+					icebreakerQuestions: [],
 				};
 				groups.push(group);
 			} else {
@@ -202,8 +216,8 @@ export class GroupCreator {
 						id: uuidv4(),
 						roomId: room.id,
 						members: [user.userId],
-						assignedTopics: [this.selectGroupTopic(user.topics)],
-						icebreakerQuestions: this.generateIcebreakerQuestions()
+						assignedTopics: [this.selectGroupTopic(user.topics, [user])],
+						icebreakerQuestions: [],
 					};
 					groups.push(group);
 				}
@@ -211,35 +225,49 @@ export class GroupCreator {
 		}
 	}
 
-	private static selectGroupTopic(topics: string[]): string {
+	private static selectGroupTopic(
+		topics: string[],
+		groupUsers: Array<{ userId: string; topics: string[] }>
+	): string {
 		if (topics.length === 0) {
 			return 'General Discussion'; // Fallback topic
 		}
-		
-		// For now, randomly select from available topics
-		// In a more sophisticated version, we could track topic popularity
-		const randomIndex = Math.floor(Math.random() * topics.length);
-		return topics[randomIndex];
-	}
+		if (topics.length === 1) {
+			return topics[0];
+		}
 
-	private static generateIcebreakerQuestions(): string[] {
-		const questions = [
-			"What's the most interesting project you've worked on recently?",
-			"If you could learn any new technology this year, what would it be?",
-			"What's your favorite development tool and why?",
-			"Share a coding challenge you recently overcame.",
-			"What trend in tech are you most excited about?",
-			"What's the best piece of advice you've received as a developer?",
-			"If you could have dinner with any programmer (living or dead), who would it be?",
-			"What's your go-to resource when learning something new?",
-			"What's your preferred way to debug complex issues?",
-			"Share something you learned this week that excited you.",
-			"What's the most creative solution you've implemented recently?",
-			"If you could automate one part of your workflow, what would it be?"
-		];
+		const topicCounts = new Map<string, number>();
+		for (const topic of topics) {
+			topicCounts.set(topic, 0);
+		}
 
-		// Return 2-3 random questions
-		const shuffled = questions.sort(() => 0.5 - Math.random());
-		return shuffled.slice(0, 2 + Math.floor(Math.random() * 2));
+		for (const user of groupUsers) {
+			for (const userTopic of user.topics) {
+				if (topicCounts.has(userTopic)) {
+					topicCounts.set(userTopic, topicCounts.get(userTopic)! + 1);
+				}
+			}
+		}
+
+		let maxCount = -1;
+		let mostPopularTopics: string[] = [];
+
+		for (const [topic, count] of topicCounts.entries()) {
+			if (count > maxCount) {
+				maxCount = count;
+				mostPopularTopics = [topic];
+			} else if (count === maxCount) {
+				mostPopularTopics.push(topic);
+			}
+		}
+
+		if (mostPopularTopics.length === 0) {
+			// Fallback, though it should not be reached with current logic
+			const randomIndex = Math.floor(Math.random() * topics.length);
+			return topics[randomIndex];
+		}
+
+		const randomIndex = Math.floor(Math.random() * mostPopularTopics.length);
+		return mostPopularTopics[randomIndex];
 	}
 }
