@@ -66,4 +66,5 @@ export interface IDataStore {
         totalUserSelections: number;
         roomResults: number;
     }>;
+	prune(maxAgeSeconds: number): Promise<void>;
 }

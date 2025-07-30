@@ -107,13 +107,22 @@ export class GoogleDataStore implements IDataStore {
 
     async reset(): Promise<void> {
         const kinds = [ROOM_KIND, USER_SELECTION_KIND, ROOM_RESULTS_KIND];
-        for (const kind of kinds) {
-            const query = this.datastore.createQuery(kind).select('__key__');
-            const [entities] = await this.datastore.runQuery(query);
-            const keys = entities.map((entity) => entity[this.datastore.KEY]);
-            if (keys.length > 0) {
-                await this.datastore.delete(keys);
+        const transaction = this.datastore.transaction();
+        try {
+            await transaction.run();
+            for (const kind of kinds) {
+                const query = this.datastore.createQuery(kind).select('__key__');
+                const [entities] = await this.datastore.runQuery(query);
+                const keys = entities.map((entity) => entity[this.datastore.KEY]);
+                if (keys.length > 0) {
+                    transaction.delete(keys);
+                }
             }
+            await transaction.commit();
+            console.info('Data store reset.');
+        } catch (error) {
+            await transaction.rollback();
+            console.error('Transaction failed:', error);
         }
     }
 
@@ -133,5 +142,32 @@ export class GoogleDataStore implements IDataStore {
             totalUserSelections: selections.length,
             roomResults: results.length,
         };
+    }
+
+    async prune(maxAgeSeconds: number): Promise<void> {
+        const cutoffDate = new Date(Date.now() - maxAgeSeconds * 1000); // Convert seconds to milliseconds
+        const query = this.datastore.createQuery(ROOM_KIND).filter('createdAt', '<', cutoffDate);
+        const [rooms] = await this.datastore.runQuery(query);
+        const keysToDelete = rooms.map((room: any) => this.getRoomKey(room.id));
+
+        const transaction = this.datastore.transaction();
+        try {
+            await transaction.run();
+            for (const key of keysToDelete) {
+                const roomId = key.name!;
+                const userSelectionQuery = this.datastore.createQuery(USER_SELECTION_KIND).hasAncestor(key);
+                const roomResultsKey = this.getRoomResultsKey(roomId);
+
+                const [userSelections] = await this.datastore.runQuery(userSelectionQuery);
+                const userSelectionKeys = userSelections.map((entity: any) => entity[this.datastore.KEY]);
+
+                transaction.delete([key, roomResultsKey, ...userSelectionKeys]);
+            }
+            await transaction.commit();
+            console.info(`Pruned ${keysToDelete.length} rooms.`);
+        } catch (error) {
+            await transaction.rollback();
+            console.error('Transaction failed:', error);
+        }
     }
 }

@@ -69,4 +69,16 @@ export class InMemoryDataStore implements IDataStore {
 			roomResults: this.roomResults.size
 		};
 	}
+
+	async prune(maxAgeSeconds: number): Promise<void> {
+		const cutoffDate = new Date(Date.now() - maxAgeSeconds * 1000); // Convert seconds to milliseconds
+		for (const [roomId, room] of this.rooms.entries()) {
+			if (room.createdAt < cutoffDate) {
+				this.rooms.delete(roomId);
+				this.userSelections.delete(roomId);
+				this.roomResults.delete(roomId);
+				console.log(`Pruned room: ${roomId}`);
+			}
+		}
+	}
 }

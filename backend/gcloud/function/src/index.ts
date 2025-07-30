@@ -12,7 +12,12 @@ const app = express();
 const app5 = express5();
 
 const dataStore = new GoogleDataStore();
-app5.use(createTangleMiddleware(dataStore));
+app5.use(createTangleMiddleware({
+  dataStore,
+  pruneDurationSeconds: process.env.PRUNE_DURATION_SECONDS
+    ? parseInt(process.env.PRUNE_DURATION_SECONDS, 10)
+    : 60 * 60
+}));
 
 app.get('/health', (req, res) => {
     res.status(200).send('OK');

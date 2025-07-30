@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild src/index.ts --bundle --platform=node --tsconfig=./tsconfig.json --outfile=dist/index.js --format=cjs --target=es2022 --sourcemap --external:'@google-cloud/datastore' --external:'@google-cloud/functions-framework'",
+    "build": "npm run build --prefix ../../mock && esbuild src/index.ts --bundle --platform=node --tsconfig=./tsconfig.json --outfile=dist/index.js --format=cjs --target=es2022 --sourcemap --external:'@google-cloud/datastore' --external:'@google-cloud/functions-framework'",
     "watch": "npm run build -- --watch",
     "dev:start": "npm run build && npx @google-cloud/functions-framework --target=tangle",
     "start": "npx @google-cloud/functions-framework --target=tangle",

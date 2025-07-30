@@ -17,4 +17,6 @@ gcloud functions deploy "$SERVICE_NAME" \
     --trigger-http \
     --allow-unauthenticated \
     --memory 384Mi \
+    --cpu 1 \
+    --concurrency 32 \
     --set-env-vars "$ENV_VARS"

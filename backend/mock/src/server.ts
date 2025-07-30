@@ -11,7 +11,8 @@ declare module 'express-serve-static-core' {
 	}
 }
 
-const createTangleMiddleware = (dataStore: IDataStore) => {
+const createTangleMiddleware = (config: { dataStore: IDataStore; pruneDurationSeconds: number }) => {
+    const { dataStore, pruneDurationSeconds } = config;
     const router = express.Router();
 
     // Middleware
@@ -243,6 +244,18 @@ const createTangleMiddleware = (dataStore: IDataStore) => {
             }
         } catch (error) {
             console.error('Error getting room data:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+
+    // Prune rooms
+    router.post('/prune', async (req, res) => {
+        try {
+            await dataStore.prune(pruneDurationSeconds);
+            console.info(`Pruned rooms older than ${pruneDurationSeconds} seconds.`);
+            res.status(200).json({ success: true });
+        } catch (error) {
+            console.error('Error pruning rooms:', error);
             res.status(500).json({ error: 'Internal server error' });
         }
     });
