@@ -4,6 +4,9 @@
 	import { getUserId } from '$lib/crypto';
 	import { RangeSlider } from 'svelte-range-slider-pips';	
 	import { base } from '$app/paths';
+	import ThemePicker from '$lib/components/ThemePicker.svelte';
+	import '$lib/themes.css';
+    import { currentTheme } from '$lib/theme';
 
 	let topics: string[] = ['React', 'AI', 'Startups', 'Web Development', 'Data Science'];
 	let currentTopic = '';
@@ -41,13 +44,15 @@
 	async function createRoom() {
 		isCreating = true;
 		try {
+			console.log($currentTheme.name);
 			const organizerId = await getUserId('user');
 			const room = await RoomAPI.createRoom({
 				organizerId,
 				topics,
 				minGroupSize,
 				maxGroupSize,
-				isActive: true
+				isActive: true,
+				style: $currentTheme.name,
 			});
 			
 			goto(`${base}/tangle?id=${room.id}`);
@@ -62,6 +67,8 @@
 
 <div class="container">
 	<main>
+		<ThemePicker />
+
 		<div class="create-form">
 			<h2>Create a New Tangle</h2>
 			
@@ -92,6 +99,7 @@
 									on:click={() => removeTopic(topic)}
 									disabled={isCreating}
 									aria-label="Remove topic"
+									class="btn-small"
 								>
 									×
 								</button>
@@ -99,7 +107,7 @@
 						{/each}
 					</div>
 					<div class="clear-button-container">
-						<button type="button" on:click={() => topics = []} disabled={isCreating} class="clear-button">
+						<button type="button" on:click={() => topics = []} disabled={isCreating} class="btn-secondary">
 							Clear All
 						</button>
 					</div>
@@ -108,12 +116,8 @@
 			</div>
 
 			<div class="form-section">
-				<h3>Group Size Settings</h3>
-				<div class="group-size-slider">
-					<label for="group-size-slider">Select group size range:</label>
-					<div class="group-size-display">
-						<span>Min: {minGroupSize}</span> - <span>Max: {maxGroupSize}</span>
-					</div>
+				<h3>Min/Max Group Size</h3>
+				<div class="group-size-controls">
 					<RangeSlider
 						id="group-size-slider"
 						bind:values={groupSizeRange}
@@ -121,16 +125,27 @@
 						max={15}
 						step={1}
 						disabled={isCreating}
+						float
+						range
+						style={Object.entries({
+							'--range-slider': 'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
+							'--range-range-inactive': 'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
+							'--range-range': 'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
+							'--range-handle': 'var(--secondary-color)',
+							'--range-handle-focus': 'var(--secondary-color)',
+							'--range-handle-inactive': 'var(--secondary-color)',
+							'--range-handle-border': 'var(--border-color)',
+							'--range-float-text': 'var(--button-text-color)',
+						}).map(([k, v]) => `${k}: ${v}`).join('; ')}
 					/>
 				</div>
-				<p class="help-text">Set the target size range for breakout groups</p>
 			</div>
 
 			<button 
 				type="button" 
 				on:click={createRoom} 
 				disabled={topics.length < 2 || isCreating}
-				class="create-button"
+				class="btn-primary"
 			>
 				{isCreating ? 'Creating Tangle...' : 'Create Tangle'}
 			</button>
@@ -144,11 +159,13 @@
 		margin: 0 auto;
 		padding: 2rem;
 		font-family: system-ui, -apple-system, sans-serif;
+		background-color: var(--background-color);
+		color: var(--text-color);
 	}
 
 	.create-form {
-		background: #ffffff;
-		border: 1px solid #e5e7eb;
+		background: var(--background-color);
+		border: 1px solid var(--border-color);
 		border-radius: 0.75rem;
 		padding: 2rem;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -159,12 +176,12 @@
 	}
 
 	h2 {
-		color: #1f2937;
+		color: var(--text-color);
 		margin-bottom: 1.5rem;
 	}
 
 	h3 {
-		color: #374151;
+		color: var(--text-color);
 		margin-bottom: 1rem;
 		font-size: 1.1rem;
 	}
@@ -185,8 +202,8 @@
 
 	.topic-input button {
 		padding: 0.75rem 1rem;
-		background: #2563eb;
-		color: white;
+		background: var(--primary-color);
+		color: var(--button-text-color);
 		border: none;
 		border-radius: 0.5rem;
 		cursor: pointer;
@@ -194,11 +211,12 @@
 	}
 
 	.topic-input button:hover:not(:disabled) {
-		background: #1d4ed8;
+		background: var(--secondary-color);
 	}
 
 	.topic-input button:disabled {
-		background: #9ca3af;
+		background: var(--button-disabled-bg);
+		color: var(--button-disabled-color);
 		cursor: not-allowed;
 	}
 
@@ -213,8 +231,8 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		background: #eff6ff;
-		color: #1e40af;
+		background: var(--secondary-color);
+		color: var(--button-text-color);
 		padding: 0.5rem 0.75rem;
 		border-radius: 1rem;
 		font-size: 0.9rem;
@@ -223,7 +241,7 @@
 	.topic-tag button {
 		background: none;
 		border: none;
-		color: #1e40af;
+		color: var(--text-color);
 		cursor: pointer;
 		font-size: 1.2rem;
 		line-height: 1;
@@ -237,69 +255,26 @@
 	}
 
 	.topic-tag button:hover:not(:disabled) {
-		background: #dbeafe;
+		background: var(--primary-color);
 	}
 
-	.group-size-slider {
-		margin-bottom: 1rem;
+	.group-size-controls {
+		margin: 3em 0 1rem 0;
 	}
 
-	.group-size-display {
-		margin-bottom: 0.5rem;
-		font-size: 1rem;
-		font-weight: 500;
-		color: #374151;
+	:global(#group-size-slider .rangeFloat) {
+		opacity: 1;
+		translate: -50% 0;
 	}
 
 	.help-text {
-		color: #6b7280;
+		color: var(--help-text-color);
 		font-size: 0.9rem;
-	}
-
-	.create-button {
-		width: 100%;
-		padding: 1rem;
-		background: #059669;
-		color: white;
-		border: none;
-		border-radius: 0.5rem;
-		font-size: 1.1rem;
-		font-weight: 600;
-		cursor: pointer;
-		margin-top: 1rem;
-	}
-
-	.create-button:hover:not(:disabled) {
-		background: #047857;
-	}
-
-	.create-button:disabled {
-		background: #9ca3af;
-		cursor: not-allowed;
 	}
 
 	.clear-button-container {
 		text-align: right;
 		margin-top: -0.5rem;
 		margin-bottom: 0.5rem;
-	}
-
-	.clear-button {
-		background: none;
-		color: #2563eb;
-		border: none;
-		cursor: pointer;
-		font-size: 0.9rem;
-		text-decoration: underline;
-		padding: 0;
-	}
-
-	.clear-button:hover:not(:disabled) {
-		color: #1d4ed8;
-	}
-
-	.clear-button:disabled {
-		color: #9ca3af;
-		cursor: not-allowed;
 	}
 </style>

@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { base } from '$app/paths';
+	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
+	import '$lib/themes.css';
 </script>
 
 <nav class="nav">
 	<div class="nav-content">
-		<a href="{base}/" class="logo">
+		<a href="{resolve('/')}" class="logo">
 			<span class="logo-text">Topic Tangle</span>
 		</a>
 
-		{#if $page.url.pathname !== `${base}/`}
-			<a href="{base}/" class="nav-link">
+		{#if page.url.pathname !== resolve('/')}
+			<a href="{resolve('/')}" class="nav-link">
 				← Create New Tangle
 			</a>
 		{/if}
@@ -19,8 +20,6 @@
 
 <style>
 	.nav {
-		background: white;
-		border-bottom: 1px solid #e5e7eb;
 		padding: 1rem 0;
 		margin-bottom: 2rem;
 	}

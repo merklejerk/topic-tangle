@@ -11,6 +11,7 @@ export interface RoomConfig {
 	maxGroupSize: number;
 	isActive: boolean;
 	createdAt: Date;
+	style?: string;
 }
 
 export interface UserSelection {

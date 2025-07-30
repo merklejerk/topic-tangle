@@ -11,6 +11,7 @@ export interface RoomConfig {
 	maxGroupSize: number;
 	isActive: boolean;
 	createdAt: Date;
+	style?: string;
 }
 
 export interface UserSelection {
@@ -36,10 +37,10 @@ export interface RoomResults {
 }
 
 export interface CreateRoomRequest {
-	organizerId: string;
 	topics: string[]; // Array of topic names
 	minGroupSize: number;
 	maxGroupSize: number;
+	style?: string;
 }
 
 export interface SubmitSelectionRequest {

@@ -30,10 +30,10 @@ export class RoomAPI {
 			method: 'POST',
 			headers,
 			body: JSON.stringify({
-				organizerId: config.organizerId,
-				topics: config.topics, // Topics are now strings
+				topics: config.topics,
 				minGroupSize: config.minGroupSize,
-				maxGroupSize: config.maxGroupSize
+				maxGroupSize: config.maxGroupSize,
+				style: config.style,
 			})
 		});
 

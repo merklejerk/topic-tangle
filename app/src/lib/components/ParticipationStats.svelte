@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { UserSelection, Topic } from '$lib/types';
+	import '$lib/themes.css';
 
 	export let userSelections: UserSelection[];
 	export let topics: Topic[];

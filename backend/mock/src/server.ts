@@ -22,12 +22,18 @@ const createTangleMiddleware = (config: { dataStore: IDataStore; pruneDurationSe
     // Create a new room
     router.post('/rooms', authMiddleware, async (req, res) => {
         try {
-            const { organizerId, topics, minGroupSize, maxGroupSize }: CreateRoomRequest = req.body;
+            const { topics, minGroupSize, maxGroupSize, style }: CreateRoomRequest = req.body;
             const userId = req.userId;
 
-            if (!organizerId || !topics || !Array.isArray(topics) || topics.length < 2) {
+            if (!userId || !topics || !Array.isArray(topics) || topics.length < 2) {
                 return res.status(400).json({ 
                     error: 'Invalid request: organizerId and at least 2 topics are required' 
+                });
+            }
+
+            if (style && (typeof(style) !== 'string' || style.length > 128)) {
+                return res.status(400).json({ 
+                    error: 'Invalid request: invalid style'
                 });
             }
 
@@ -67,16 +73,17 @@ const createTangleMiddleware = (config: { dataStore: IDataStore; pruneDurationSe
 
             const room: RoomConfig = {
                 id: Math.random().toString(36).substring(2, 8).toUpperCase(),
-                organizerId,
+                organizerId: userId,
                 topics: topicsWithIds,
                 minGroupSize: sanitizedMinGroupSize,
                 maxGroupSize: sanitizedMaxGroupSize,
                 isActive: true,
-                createdAt: new Date()
+                createdAt: new Date(),
+                style,
             };
 
             await dataStore.createRoom(room);
-            console.log(`Room created: ${room.id} by organizer ${organizerId}`);
+            console.log(`Room created: ${room.id} by organizer ${userId}`);
             res.status(201).json(room);
         } catch (error) {
             console.error('Error creating room:', error);
@@ -238,8 +245,7 @@ const createTangleMiddleware = (config: { dataStore: IDataStore; pruneDurationSe
                 return res.json({ selections, results });
             } else {
                 // Non-organizers can only see their own selections.
-                const userSelections = await dataStore.getUserSelections(roomId);
-                const userSelection = userSelections.find(selection => selection.userId === userId);
+                const userSelection = selections.find(selection => selection.userId === userId);
                 return res.json({ selections: [userSelection], results });
             }
         } catch (error) {

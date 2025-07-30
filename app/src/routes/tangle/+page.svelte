@@ -5,8 +5,10 @@
 	import { RoomAPI } from '$lib/api';
 	import { formatDateTime } from '$lib/utils';
 	import { getUserId } from '$lib/crypto';
+	import { themes, applyTheme } from '$lib/theme';
 	import ParticipationStats from '$lib/components/ParticipationStats.svelte';
 	import type { RoomConfig, UserSelection, RoomResults } from '$lib/types';
+	import '$lib/themes.css';
 
 	let room: RoomConfig | null = null;
 	let userSelections: UserSelection[] = [];
@@ -66,6 +68,17 @@
 			room = await RoomAPI.getRoom(tangleId);
 			
 			if (room) {
+				console.log(room);
+				// Apply theme if room has a style field that matches a known theme
+				if (room.style && typeof room.style === 'string') {
+					const matchingTheme = themes.find(theme => 
+						theme.name.toLowerCase() === room!.style!.toLowerCase()
+					);
+					if (matchingTheme) {
+						applyTheme(matchingTheme);
+					}
+				}
+				
 				// Load room data (selections and results)
 				await loadRoomData();
 			}
@@ -335,6 +348,7 @@
 		margin: 0 auto;
 		padding: 2rem;
 		font-family: system-ui, -apple-system, sans-serif;
+		color: var(--text-color);
 	}
 
 	.loading, .error {
@@ -343,7 +357,7 @@
 	}
 
 	.error a {
-		color: #2563eb;
+		color: var(--primary-color);
 		text-decoration: none;
 	}
 
@@ -355,20 +369,21 @@
 		text-align: center;
 		margin-bottom: 2rem;
 		padding-bottom: 1rem;
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid var(--border-color);
 	}
 
 	h1 {
-		color: #2563eb;
+		color: var(--primary-color);
 		margin-bottom: 0.5rem;
 	}
 
 	.organizer-section {
-		background: #fef3c7;
-		border: 1px solid #f59e0b;
+		background: var(--background-color);
+		border: 2px solid var(--secondary-color);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
 		margin-bottom: 2rem;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 	}
 
 	.share-section {
@@ -392,7 +407,8 @@
 		width: 300px;
 		margin: 0 auto;
 		border-radius: 0.5rem;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+		border: 2px solid var(--border-color);
 	}
 
 	.link-section {
@@ -406,18 +422,30 @@
 		flex: 1;
 		max-width: 300px;
 		padding: 0.75rem;
-		border: 1px solid #d1d5db;
+		border: 2px solid var(--border-color);
 		border-radius: 0.5rem;
 		font-size: 0.9rem;
+		background: var(--background-color);
+		color: var(--text-color);
+	}
+
+	.link-section input:focus {
+		outline: none;
+		border-color: var(--primary-color);
 	}
 
 	.link-section button {
 		padding: 0.75rem 1rem;
-		background: #2563eb;
-		color: white;
+		background: var(--primary-color);
+		color: var(--button-text-color);
 		border: none;
 		border-radius: 0.5rem;
 		cursor: pointer;
+		transition: background-color 0.2s;
+	}
+
+	.link-section button:hover {
+		background: var(--secondary-color);
 	}
 
 	.participants-section {
@@ -427,30 +455,33 @@
 	.tangle-button {
 		width: 100%;
 		padding: 1rem;
-		background: #dc2626;
-		color: white;
+		background: var(--primary-color);
+		color: var(--button-text-color);
 		border: none;
 		border-radius: 0.5rem;
 		font-size: 1.2rem;
 		font-weight: 600;
 		cursor: pointer;
+		transition: background-color 0.2s;
 	}
 
 	.tangle-button:hover:not(:disabled) {
-		background: #b91c1c;
+		background: var(--secondary-color);
 	}
 
 	.tangle-button:disabled {
-		background: #9ca3af;
+		background: var(--button-disabled-bg);
+		color: var(--button-disabled-color);
 		cursor: not-allowed;
 	}
 
 	.selection-section {
-		background: white;
-		border: 1px solid #e5e7eb;
+		background: var(--background-color);
+		border: 2px solid var(--border-color);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
 		margin-bottom: 2rem;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
 	.topics-cloud {
@@ -462,23 +493,25 @@
 
 	.topic-button {
 		padding: 0.75rem 1rem;
-		border: 2px solid #e5e7eb;
+		border: 2px solid var(--border-color);
 		border-radius: 2rem;
-		background: white;
+		background: var(--background-color);
+		color: var(--text-color);
 		cursor: pointer;
 		transition: all 0.2s;
 		font-size: 0.9rem;
 	}
 
 	.topic-button:hover:not(.disabled) {
-		border-color: #2563eb;
+		border-color: var(--primary-color);
 		transform: translateY(-1px);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	}
 
 	.topic-button.selected {
-		background: #2563eb;
-		color: white;
-		border-color: #2563eb;
+		background: var(--primary-color);
+		color: var(--button-text-color);
+		border-color: var(--primary-color);
 	}
 
 	.topic-button.disabled {
@@ -490,21 +523,23 @@
 		margin-top: 0.75rem;
 		font-size: 0.875rem;
 		text-align: right;
+		color: var(--help-text-color);
 	}
 
 	.saving {
-		color: #f59e0b;
+		color: var(--secondary-color);
 	}
 
 	.saved {
-		color: #059669;
+		color: var(--primary-color);
 	}
 
 	.results-section {
-		background: #f0fdf4;
-		border: 1px solid #22c55e;
+		background: var(--background-color);
+		border: 2px solid var(--primary-color);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 	}
 
 	.groups-list {
@@ -514,25 +549,28 @@
 	}
 
 	.group-card {
-		background: white;
-		border: 1px solid #e5e7eb;
+		background: var(--background-color);
+		border: 2px solid var(--border-color);
 		border-radius: 0.5rem;
 		padding: 1rem;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 	}
 
 	.group-card h3 {
 		margin-bottom: 0.75rem;
-		color: #1f2937;
+		color: var(--primary-color);
 	}
 
 	.group-topics, .group-size {
 		margin-bottom: 0.5rem;
 		font-size: 0.9rem;
+		color: var(--text-color);
 	}
 
 	.icebreakers {
 		margin-top: 0.75rem;
 		font-size: 0.9rem;
+		color: var(--text-color);
 	}
 
 	.icebreakers ul {
@@ -545,11 +583,12 @@
 	}
 
 	.unassigned-notice {
-		background: #fef3c7;
-		border: 1px solid #f59e0b;
+		background: var(--background-color);
+		border: 2px solid var(--secondary-color);
 		border-radius: 0.5rem;
 		padding: 1rem;
 		margin-top: 1.5rem;
+		color: var(--help-text-color);
 	}
 
 	@media (max-width: 640px) {
