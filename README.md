@@ -58,7 +58,11 @@ For development, you can run either the mock backend or the cloud function backe
    ```bash
    npm i -D
    ```
-3. Start the server:
+3. Build:
+    ```bash
+    npm run build
+    ```
+4. Run locally, rebuild and restart on code changes:
    ```bash
    npm run dev
    ```
@@ -73,7 +77,15 @@ For development, you can run either the mock backend or the cloud function backe
    ```bash
    npm i -D
    ```
-3. Deploy the function:
+3. Build (requires `mock` be built beforehand):
+    ```bash
+    npm run build
+    ```
+4. Run locally, rebuild and restart on code changes (will also watch and rebuild changes in `mock`):
+    ```bash
+    npm run dev
+    ```
+5. Deploy the function:
    ```bash
    ./deploy.sh
    ```
