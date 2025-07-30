@@ -1,6 +1,6 @@
 # Topic Tangle
 
-Topic Tangle is an application for easily organizing and inspiring group discussions. Organizers create a room of topics where users can choose which they're interested in. Afterwards, the app will create breakout groups based on users' overlapping topics and provide LLM-generated icebreaker questions.
+Topic Tangle is an application for easily organizing and inspiring group discussions. Organizers create a room of topics where users choose which ones they're interested in. Afterwards, the app will create breakout groups based on users' overlapping topics and provide LLM-generated icebreaker questions.
 
 ## Project Layout
 
