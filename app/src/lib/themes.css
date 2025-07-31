@@ -1,5 +1,5 @@
 :root {
-  --background-color: #ffffff;
+  --background-color: #dedfdf;
   --text-color: #000000;
   --primary-color: #2563eb;
   --secondary-color: #6b7280;
@@ -18,7 +18,7 @@
   --text-color: #ffffff;
   --primary-color: #4f46e5;
   --secondary-color: #9ca3af;
-  --border-color: #374151;
+  --border-color: #626c7d;
   --help-text-color: #9ca3af;
   --button-disabled-bg: #4b5563;
   --button-disabled-color: #d1d5db;
@@ -37,9 +37,9 @@
   --help-text-color: #a8a29e;
   --button-disabled-bg: #e4e4e7;
   --button-disabled-color: #9ca3af;
-  --button-text-color: #374151;
+  --button-text-color: #ffffff;
   --card-background-color: #ffffff;
-  --highlight-color: #ec4899;
+  --highlight-color: #48b8ec;
   --highlight-text-color: #ffffff;
 }
 
@@ -54,14 +54,15 @@
   --button-disabled-color: #9ca3af;
   --button-text-color: #ffffff;
   --card-background-color: color-mix(in srgb, #111827 66%, transparent);
-  --highlight-color: #57ac49;
-  --highlight-text-color: #ffffff;
+  --highlight-color: #e0ca22;
+  --highlight-text-color: #000000;
 }
 
 body {
   background-color: var(--background-color);
   color: var(--text-color);
   transition: background-color 0.5s, color 0.5s;
+  margin: 0;
 }
 
 button {
@@ -113,6 +114,7 @@ button:disabled {
 
 .btn-secondary:hover:not(:disabled) {
   color: var(--secondary-color);
+  background: none;
 }
 
 .btn-secondary:disabled {
@@ -175,4 +177,24 @@ button:disabled {
   background: linear-gradient(270deg, #81031c, #8a427e, #29701d, #000000);
   background-size: 400% 400%;
   animation: neon-glow 30s ease infinite;
+}
+
+
+h1 {
+  color: var(--text-color);
+  font-weight: bold;
+  margin: 0;
+}
+
+h2 {
+  margin: 0;
+}
+
+/* Common panel styling for organizer, user, and results sections */
+.panel {
+  background: var(--card-background-color);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }

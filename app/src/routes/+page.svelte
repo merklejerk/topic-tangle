@@ -6,7 +6,7 @@
 	import { resolve } from '$app/paths';
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
 	import '$lib/themes.css';
-	import { currentTheme } from '$lib/theme';
+	import { currentTheme, themes, applyTheme } from '$lib/theme';
 	import { onMount } from 'svelte';
 
 	let topics: string[] = ['React', 'AI', 'Startups', 'Web Development', 'Data Science'];
@@ -18,6 +18,8 @@
 	let isDesktop = false;
 
 	onMount(() => {
+		// Set a random theme on mount.
+		applyTheme(themes[Math.floor(Math.random() * themes.length)]);
 		const mediaQuery = window.matchMedia('(min-width: 768px)');
 		isDesktop = mediaQuery.matches;
 		const update = (e: MediaQueryListEvent) => (isDesktop = e.matches);
@@ -78,7 +80,7 @@
 <div class="container">
 	<main>
 		<div class="page-content">
-			<div class="create-form">
+			<div class="create-form panel">
 				<h2>Create a New Tangle</h2>
 
 				<div class="form-section">
@@ -135,7 +137,7 @@
 							id="group-size-slider"
 							bind:values={groupSizeRange}
 							min={1}
-							max={15}
+							max={20}
 							step={1}
 							disabled={isCreating}
 							float
@@ -175,9 +177,8 @@
 
 <style>
 	.container {
-		max-width: 600px;
+		max-width: 800px;
 		margin: 0 auto;
-		padding: 2rem;
 		font-family: system-ui, -apple-system, sans-serif;
 		color: var(--text-color);
 	}
@@ -209,14 +210,6 @@
 			margin-top: 0;
 			font-size: 1rem;
 		}
-	}
-
-	.create-form {
-		background: var(--card-background-color);
-		border: 1px solid var(--border-color);
-		border-radius: 0.75rem;
-		padding: 2rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	}
 
 	.form-section {

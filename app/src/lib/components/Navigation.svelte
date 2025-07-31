@@ -1,27 +1,28 @@
 <script lang="ts">
-	import { page } from '$app/state';
+	import { page } from '$app/stores';
 	import { resolve } from '$app/paths';
 	import '$lib/themes.css';
+	import Logo from './Logo.svelte';
+    import { goto } from '$app/navigation';
 </script>
 
 <nav class="nav">
 	<div class="nav-content">
-		<a href="{resolve('/')}" class="logo">
+		<a
+			href="{resolve('/')}"
+			class="logo"
+			style="--color2: var(--text-color); --color1: var(--primary-color);"
+		>
+			<span class="logo-img"><Logo /></span>
 			<span class="logo-text">Topic Tangle</span>
 		</a>
-
-		{#if page.url.pathname !== resolve('/')}
-			<a href="{resolve('/')}" class="nav-link">
-				← Create New Tangle
-			</a>
-		{/if}
 	</div>
 </nav>
 
 <style>
 	.nav {
 		padding: 1rem 0;
-		margin-bottom: 2rem;
+		background: linear-gradient(to bottom, color-mix(in srgb, var(--background-color) 25%, transparent), transparent);
 	}
 
 	.nav-content {
@@ -35,25 +36,36 @@
 
 	.logo {
 		text-decoration: none;
-		color: #2563eb;
-		font-weight: 700;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 		font-size: 1.5rem;
 	}
 
-	.logo:hover {
-		text-decoration: none;
-		color: #1d4ed8;
-	}
-
-	.nav-link {
-		color: #6b7280;
-		text-decoration: none;
-		font-weight: 500;
+	.logo-text {
+		color: var(--text-color);
+		font-weight: 700;
 		transition: color 0.2s;
+		text-shadow: 0 0 1em color-mix(in srgb, var(--secondary-color) 33%, transparent);
 	}
 
-	.nav-link:hover {
-		color: #2563eb;
-		text-decoration: none;
+	.logo-img {
+		margin-top: 0.4em;
+		transform-origin: 50% 40%;
+	}
+
+	.logo:hover {
+		> .logo-img {
+			animation: spin 0.5s linear infinite;
+		}
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

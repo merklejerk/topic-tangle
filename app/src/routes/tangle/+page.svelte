@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
-	import { flip } from 'svelte/animate';
-	import { slide } from 'svelte/transition';
 	import QRCode from 'qrcode';
 	import { RoomAPI } from '$lib/api';
 	import { formatDateTime } from '$lib/utils';
@@ -10,7 +8,7 @@
 	import { themes, applyTheme } from '$lib/theme';
 	import ParticipationStats from '$lib/components/ParticipationStats.svelte';
 	import TopicSelector from '$lib/components/TopicSelector.svelte';
-	import type { RoomConfig, UserSelection, RoomResults } from '$lib/types';
+	import type { RoomConfig, UserSelection, RoomResults, BreakoutGroup } from '$lib/types';
 	import '$lib/themes.css';
 
 	let room: RoomConfig | null = null;
@@ -205,6 +203,18 @@
 			);
 		});
 	}
+
+	// Find the user's group and sort groups to put user's group first
+	$: sortedGroups = roomResults ? (() => {
+		const userGroup = roomResults.groups.find(group => group.members.includes(userId));
+		const otherGroups = roomResults.groups.filter(group => !group.members.includes(userId));
+		return userGroup ? [userGroup, ...otherGroups] : roomResults.groups;
+	})() : [];
+
+	// Check if a group contains the current user
+	function isUserInGroup(group: BreakoutGroup): boolean {
+		return group.members.includes(userId);
+	}
 </script>
 
 <svelte:head>
@@ -230,11 +240,8 @@
 
 		{#if isUserOrganizer}
 			<!-- Organizer View -->
-			<div class="organizer-section">
-				<h2>Organizer Dashboard</h2>
-				
+				<div class="organizer-section panel">
 				<div class="share-section">
-					<h3>Share this Tangle</h3>
 					<div class="share-content">
 						<div class="qr-code">
 							{#if qrCodeDataUrl}
@@ -266,10 +273,12 @@
 			</div>
 		{:else}
 			{#if roomResults}
-				<div class="participants-section">
-					{#if room}
-						<ParticipationStats userSelections={userSelections} topics={room.topics} />
-					{/if}
+			<div class="user-section panel">
+					<div class="participants-section">
+						{#if room}
+							<ParticipationStats userSelections={userSelections} topics={room.topics} />
+						{/if}
+					</div>
 				</div>
 			{/if}
 		{/if}
@@ -289,18 +298,17 @@
 		</div>
 		{:else}
 			<!-- Results View -->
-			<div class="results-section">
+		<div class="results-section panel">
 				<h2>Breakout Groups Created!</h2>
-				<p>Groups were created on {formatDateTime(roomResults.createdAt)}</p>
 				
 				{#if roomResults.groups.length > 0}
 					<div class="groups-list">
-						{#each roomResults.groups as group, index (group.id)}
-							<div class="group-card">
-								<h3>Group {index + 1}</h3>
-								<div class="group-topics">
-									<strong>Topic:</strong> {getTopicName(group.assignedTopics[0])}
-								</div>
+						{#each sortedGroups as group (group.id)}
+							<div class="group-card" class:user-group={isUserInGroup(group)}>
+								<h3>{getTopicName(group.assignedTopics[0])}</h3>
+								{#if isUserInGroup(group)}
+									<div class="user-badge">Your Group</div>
+								{/if}
 								<div class="group-size">
 									<strong>Members:</strong> {group.members.length}
 								</div>
@@ -333,7 +341,6 @@
 	.container {
 		max-width: 800px;
 		margin: 0 auto;
-		padding: 2rem;
 		font-family: system-ui, -apple-system, sans-serif;
 		color: var(--text-color);
 	}
@@ -354,23 +361,7 @@
 
 	header {
 		text-align: center;
-		margin-bottom: 2rem;
-		padding-bottom: 1rem;
-		border-bottom: 1px solid var(--border-color);
-	}
-
-	h1 {
-		color: var(--primary-color);
-		margin-bottom: 0.5rem;
-	}
-
-	.organizer-section {
-		background: var(--card-background-color);
-		border: 2px solid var(--secondary-color);
-		border-radius: 0.75rem;
-		padding: 1.5rem;
-		margin-bottom: 2rem;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		margin: 0 0 1.5rem 0;
 	}
 
 	.share-section {
@@ -387,7 +378,6 @@
 	.qr-code {
 		width: 100%;
 		text-align: center;
-		margin-bottom: 1rem;
 	}
 
 	.qr-code img {
@@ -395,7 +385,6 @@
 		margin: 0 auto;
 		border-radius: 0.5rem;
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-		border: 2px solid var(--border-color);
 	}
 
 	.link-section {
@@ -462,14 +451,6 @@
 		cursor: not-allowed;
 	}
 
-	.results-section {
-		background: var(--background-color);
-		border: 2px solid var(--primary-color);
-		border-radius: 0.75rem;
-		padding: 1.5rem;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	}
-
 	.groups-list {
 		display: grid;
 		gap: 1rem;
@@ -477,11 +458,32 @@
 	}
 
 	.group-card {
-		background: var(--background-color);
 		border: 2px solid var(--border-color);
 		border-radius: 0.5rem;
 		padding: 1rem;
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+		position: relative;
+	}
+
+	.group-card.user-group {
+		border-color: var(--border-color);
+		border-width: 3px;
+	}
+
+	.user-badge {
+		position: absolute;
+		top: 0.5rem;
+		right: 0.5rem;
+		background: var(--highlight-color);
+		color: var(--highlight-text-color);
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.025em;
+		box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+		animation: rock 1.5s ease-out infinite;
+		transform-origin: bottom center;
 	}
 
 	.group-card h3 {
@@ -489,7 +491,7 @@
 		color: var(--primary-color);
 	}
 
-	.group-topics, .group-size {
+	.group-size {
 		margin-bottom: 0.5rem;
 		font-size: 0.9rem;
 		color: var(--text-color);
@@ -521,10 +523,22 @@
 
 	.topic-selection {
 		background: var(--card-background-color);
-		border: 2px solid var(--border-color);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	@keyframes rock {
+		0%,
+		100% {
+			transform: rotate(0deg);
+		}
+		25% {
+			transform: rotate(-8deg);
+		}
+		75% {
+			transform: rotate(8deg);
+		}
 	}
 
 	@media (max-width: 640px) {

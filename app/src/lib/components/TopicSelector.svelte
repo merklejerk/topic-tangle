@@ -1,20 +1,33 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { slide, scale } from 'svelte/transition';
 	import type { Topic } from '$lib/types';
     import { cubicIn, cubicOut } from 'svelte/easing';
+	import ParticleEffect from './ParticleEffect.svelte';
 
 	export let topics: Topic[];
 	export let selectedTopics: string[];
 	export let maxSelections: number;
 	export let isSubmitting: boolean;
+	export let particleFPS: number = 45; // Configurable framerate for particle animation
 
 	// TODO: deprecated svelte fn.
 	const dispatch = createEventDispatcher();
 
+	let particleEffect: ParticleEffect;
+
+	// Add audio element for sound effect
+	let popSound: HTMLAudioElement;
+
+	onMount(() => {
+		popSound = new Audio('/pop.ogg');
+	});
+
 	function toggleTopicSelection(topicId: string) {
-		if (selectedTopics.includes(topicId)) {
+		const wasSelected = selectedTopics.includes(topicId);
+		
+		if (wasSelected) {
 			// If already selected, deselect it
 			selectedTopics = selectedTopics.filter((id) => id !== topicId);
 		} else {
@@ -26,18 +39,36 @@
 				// Otherwise, just add it.
 				selectedTopics = [...selectedTopics, topicId];
 			}
+			
+			// Play sound effect
+			if (popSound) {
+				popSound.currentTime = 0;
+				popSound.volume = 0.66;
+				popSound.play();
+			}
+
+			// Trigger particle effect when selecting (not deselecting)
+			setTimeout(() => {
+				const selectedButton = document.querySelector(`[data-topic-id="${topicId}"].selected`);
+				if (selectedButton && particleEffect) {
+					particleEffect.createParticleEffect(selectedButton as HTMLElement);
+				}
+			}, 100); // Small delay to let the transition start
 		}
 		dispatch('selectionChange', { selectedTopics });
-	}
-</script>
-
-<!-- Topic Selection -->
+	}</script><!-- Topic Selection -->
 <div class="component">
+	<!-- Particle effect component -->
+	<div class="particle-effect-container">
+		<ParticleEffect bind:this={particleEffect} {particleFPS} particleCharacter="👍" enableTint />
+	</div>
+	
 	{#if selectedTopics.length > 0}
 		<div class="selected-topics-container" transition:slide={{ duration: 300 }}>
 			{#each selectedTopics.map(id => topics.find(t => t.id === id)) as topic (topic!.id)}
 				<button
 					class="topic-button selected"
+					data-topic-id={topic!.id}
 					on:click={() => toggleTopicSelection(topic!.id)}
 					in:scale={{ duration: 300, start: 0, easing: cubicOut }}
 					out:scale={{ duration: 175, start: 0, easing: cubicIn }}
@@ -71,7 +102,6 @@
 <style>
 	.component {
 		position: relative;
-		padding-bottom: 1.5rem; /* Add padding to avoid overlap */
 	}
 
 	.selected-topics-container {
@@ -82,6 +112,10 @@
 		align-items: center;
 		justify-content: center;
 		transition: all 0.3s ease;
+	}
+
+	.particle-effect-container {
+		font-size: 1.5em;
 	}
 
 	.topics-cloud {
@@ -109,6 +143,7 @@
 		transform: scale(1.125);
 		transform-origin: center;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+		border: 1px solid transparent;
 	}
 
 	.topic-button.selected {
@@ -122,8 +157,8 @@
 	.topic-button.selected:hover {
 		transform: scale(0.925) translate(0, 0.1em);
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-		background: transparent;
-		border: 1px dashed color-mix(in srgb, var(--highlight-color) 75%, transparent);
+		opacity: 0.5;
+		border: 1px solid transparent;
 	}
 
 	.auto-save-status {
