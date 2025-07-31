@@ -524,7 +524,6 @@
 		border: 2px solid var(--border-color);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
-		margin-bottom: 2rem;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
