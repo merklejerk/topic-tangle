@@ -44,7 +44,7 @@ class Particle {
 
   constructor() {
     this.x = Math.random() * window.innerWidth;
-    this.y = Math.random() * -window.innerHeight;
+    this.y = Math.random() * window.innerHeight * 2 - window.innerHeight;
     this.size = Math.random() * (MAX_PARTICLE_SIZE - MIN_PARTICLE_SIZE) + MIN_PARTICLE_SIZE;
     this.color = `hsl(${Math.random() * 360}, 100%, ${MIN_LIGHTNESS + Math.random() * (MAX_LIGHTNESS - MIN_LIGHTNESS)}%)`;
     this.speedX = (Math.random() * HORIZONTAL_SPEED_RANGE - HORIZONTAL_SPEED_RANGE / 2) * FALL_SPEED;

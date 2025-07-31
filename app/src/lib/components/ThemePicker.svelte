@@ -38,9 +38,8 @@
   .theme-picker {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.5em;
     font-family: system-ui, -apple-system, sans-serif;
-    margin: 1rem;
   }
 
   .theme-picker.column {
@@ -50,18 +49,18 @@
 
   .theme-button {
     background: none;
-    border: 2px solid transparent;
+    border: transparent;
     border-radius: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.5rem;
+    width: 1.5em;
+    height: 1.5em;
+    font-size: 1em;
+    padding: 0.5em;
+    font-size: 1.25em;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    position: relative;
-    scale: 0.85;
     background-color: transparent;
   }
 
@@ -79,6 +78,5 @@
 
   .theme-button.active {
     background-color: var(--active-bg);
-    scale: 1;
   }
 </style>

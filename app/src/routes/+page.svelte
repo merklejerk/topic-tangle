@@ -2,11 +2,12 @@
 	import { goto } from '$app/navigation';
 	import { RoomAPI } from '$lib/api';
 	import { getUserId } from '$lib/crypto';
-	import { RangeSlider } from 'svelte-range-slider-pips';	
-	import { base } from '$app/paths';
+	import { RangeSlider } from 'svelte-range-slider-pips';
+	import { resolve } from '$app/paths';
 	import ThemePicker from '$lib/components/ThemePicker.svelte';
 	import '$lib/themes.css';
-    import { currentTheme } from '$lib/theme';
+	import { currentTheme } from '$lib/theme';
+	import { onMount } from 'svelte';
 
 	let topics: string[] = ['React', 'AI', 'Startups', 'Web Development', 'Data Science'];
 	let currentTopic = '';
@@ -14,6 +15,15 @@
 	let maxGroupSize = 6;
 	let isCreating = false;
 	let groupSizeRange = [minGroupSize, maxGroupSize];
+	let isDesktop = false;
+
+	onMount(() => {
+		const mediaQuery = window.matchMedia('(min-width: 768px)');
+		isDesktop = mediaQuery.matches;
+		const update = (e: MediaQueryListEvent) => (isDesktop = e.matches);
+		mediaQuery.addEventListener('change', update);
+		return () => mediaQuery.removeEventListener('change', update);
+	});
 
 	$: minGroupSize = groupSizeRange[0];
 	$: maxGroupSize = groupSizeRange[1];
@@ -54,8 +64,8 @@
 				isActive: true,
 				style: $currentTheme.name,
 			});
-			
-			goto(`${base}/tangle?id=${room.id}`);
+
+			goto(`${resolve('/tangle')}?id=${room.id}`);
 		} catch (error) {
 			console.error('Failed to create room:', error);
 			alert('Failed to create tangle. Please try again.');
@@ -67,88 +77,98 @@
 
 <div class="container">
 	<main>
-		<ThemePicker />
+		<div class="page-content">
+			<div class="create-form">
+				<h2>Create a New Tangle</h2>
 
-		<div class="create-form">
-			<h2>Create a New Tangle</h2>
-			
-			<div class="form-section">
-				<h3>Discussion Topics</h3>
-				<p class="help-text">Add topics that participants can choose from (minimum 2)</p>
+				<div class="form-section">
+					<h3>Discussion Topics</h3>
+					<p class="help-text">Add topics that participants can choose from (minimum 2)</p>
 
-				<div class="topic-input">
-					<input
-						type="text"
-						bind:value={currentTopic}
-						on:keydown={handleTopicKeydown}
-						placeholder="Enter a topic (e.g., React, AI, Startups)"
-						disabled={isCreating}
-					/>
-					<button type="button" on:click={addTopic} disabled={!currentTopic.trim() || isCreating}>
-						Add Topic
-					</button>
-				</div>
-				
-				{#if topics.length > 0}
-					<div class="topics-list">
-						{#each topics as topic (topic)}
-							<div class="topic-tag">
-								<span>{topic}</span>
-								<button 
-									type="button" 
-									on:click={() => removeTopic(topic)}
-									disabled={isCreating}
-									aria-label="Remove topic"
-									class="btn-small"
-								>
-									×
-								</button>
-							</div>
-						{/each}
-					</div>
-					<div class="clear-button-container">
-						<button type="button" on:click={() => topics = []} disabled={isCreating} class="btn-secondary">
-							Clear All
+					<div class="topic-input">
+						<input
+							type="text"
+							bind:value={currentTopic}
+							on:keydown={handleTopicKeydown}
+							placeholder="Enter a topic (e.g., React, AI, Startups)"
+							disabled={isCreating}
+						/>
+						<button type="button" on:click={addTopic} disabled={!currentTopic.trim() || isCreating}>
+							Add Topic
 						</button>
 					</div>
-				{/if}
-				
-			</div>
 
-			<div class="form-section">
-				<h3>Min/Max Group Size</h3>
-				<div class="group-size-controls">
-					<RangeSlider
-						id="group-size-slider"
-						bind:values={groupSizeRange}
-						min={1}
-						max={15}
-						step={1}
-						disabled={isCreating}
-						float
-						range
-						style={Object.entries({
-							'--range-slider': 'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
-							'--range-range-inactive': 'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
-							'--range-range': 'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
-							'--range-handle': 'var(--secondary-color)',
-							'--range-handle-focus': 'var(--secondary-color)',
-							'--range-handle-inactive': 'var(--secondary-color)',
-							'--range-handle-border': 'var(--border-color)',
-							'--range-float-text': 'var(--button-text-color)',
-						}).map(([k, v]) => `${k}: ${v}`).join('; ')}
-					/>
+					{#if topics.length > 0}
+						<div class="topics-list">
+							{#each topics as topic (topic)}
+								<div class="topic-tag">
+									<span>{topic}</span>
+									<button
+										type="button"
+										on:click={() => removeTopic(topic)}
+										disabled={isCreating}
+										aria-label="Remove topic"
+										class="btn-small"
+									>
+										×
+									</button>
+								</div>
+							{/each}
+						</div>
+						<div class="clear-button-container">
+							<button
+								type="button"
+								on:click={() => (topics = [])}
+								disabled={isCreating}
+								class="btn-secondary"
+							>
+								Clear All
+							</button>
+						</div>
+					{/if}
 				</div>
-			</div>
 
-			<button 
-				type="button" 
-				on:click={createRoom} 
-				disabled={topics.length < 2 || isCreating}
-				class="btn-primary"
-			>
-				{isCreating ? 'Creating Tangle...' : 'Create Tangle'}
-			</button>
+				<div class="form-section">
+					<h3>Min/Max Group Size</h3>
+					<div class="group-size-controls">
+						<RangeSlider
+							id="group-size-slider"
+							bind:values={groupSizeRange}
+							min={1}
+							max={15}
+							step={1}
+							disabled={isCreating}
+							float
+							range
+							style={Object.entries({
+								'--range-slider': 'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
+								'--range-range-inactive':
+									'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
+								'--range-range': 'color-mix(in srgb, var(--secondary-color) 33%, transparent)',
+								'--range-handle': 'var(--secondary-color)',
+								'--range-handle-focus': 'var(--secondary-color)',
+								'--range-handle-inactive': 'var(--secondary-color)',
+								'--range-handle-border': 'var(--border-color)',
+								'--range-float-text': 'var(--button-text-color)'
+							})
+								.map(([k, v]) => `${k}: ${v}`)
+								.join('; ')}
+						/>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					on:click={createRoom}
+					disabled={topics.length < 2 || isCreating}
+					class="btn-primary"
+				>
+					{isCreating ? 'Creating Tangle...' : 'Create Tangle'}
+				</button>
+			</div>
+			<div class="theme-picker-container">
+				<ThemePicker direction={isDesktop ? 'column' : 'row'} />
+			</div>
 		</div>
 	</main>
 </div>
@@ -159,12 +179,40 @@
 		margin: 0 auto;
 		padding: 2rem;
 		font-family: system-ui, -apple-system, sans-serif;
-		background-color: var(--background-color);
 		color: var(--text-color);
 	}
 
+	.page-content {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.theme-picker-container {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 1rem;
+		font-size: 0.8rem;
+	}
+
+	@media (min-width: 768px) {
+		.page-content {
+			flex-direction: row;
+			align-items: flex-start;
+			gap: 1rem;
+		}
+
+		.create-form {
+			flex: 1;
+		}
+
+		.theme-picker-container {
+			margin-top: 0;
+			font-size: 1rem;
+		}
+	}
+
 	.create-form {
-		background: var(--background-color);
+		background: var(--card-background-color);
 		border: 1px solid var(--border-color);
 		border-radius: 0.75rem;
 		padding: 2rem;

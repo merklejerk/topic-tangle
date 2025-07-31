@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { currentTheme } from '$lib/theme';
   import { createAnimation, type AnimationHandler } from '$lib/animations';
 
@@ -34,19 +34,15 @@
     }
   }
 
-  $: {
-    // Only restart animation if theme actually changed and we have a canvas
-    if ($currentTheme.name !== currentThemeName) {
-      currentThemeName = $currentTheme.name;
-      if (canvas) {
-        initializeAnimation();
-      }
-    }
-  }
-
-  // Watch for canvas changes and initialize animation if needed
-  $: if (canvas && currentThemeName === $currentTheme.name) {
+  onMount(() => {
     initializeAnimation();
+  });
+
+  $: if ($currentTheme.name !== currentThemeName) {
+    currentThemeName = $currentTheme.name;
+    if (canvas) {
+      initializeAnimation();
+    }
   }
 
   onDestroy(() => {
