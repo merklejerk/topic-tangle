@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
+	import { flip } from 'svelte/animate';
+	import { slide } from 'svelte/transition';
 	import QRCode from 'qrcode';
 	import { RoomAPI } from '$lib/api';
 	import { formatDateTime } from '$lib/utils';
 	import { getUserId } from '$lib/crypto';
 	import { themes, applyTheme } from '$lib/theme';
 	import ParticipationStats from '$lib/components/ParticipationStats.svelte';
+	import TopicSelector from '$lib/components/TopicSelector.svelte';
 	import type { RoomConfig, UserSelection, RoomResults } from '$lib/types';
 	import '$lib/themes.css';
 
@@ -137,8 +140,10 @@
 		} else if (selectedTopics.length < maxSelections) {
 			selectedTopics = [...selectedTopics, topicId];
 		}
-		
-		// Auto-submit selection whenever it changes
+	}
+
+	function handleSelectionChange(event: CustomEvent) {
+		selectedTopics = event.detail.selectedTopics;
 		submitSelection();
 	}
 
@@ -192,7 +197,6 @@
 	}
 
 	$: isUserOrganizer = room ? (userId === room.organizerId) : false;
-	$: selectedTopicNames = room ? room.topics.filter(t => selectedTopics.includes(t.id)).map(t => t.name) : [];
 
 	$: if (roomResults) {
 		roomResults.groups.forEach(group => {
@@ -272,34 +276,17 @@
 
 
 		{#if !roomResults}
-			<!-- Topic Selection -->
-			<div class="selection-section">
-				<h2>Choose Your Topics</h2>
-				<p>Select up to {maxSelections} topics you're interested in discussing:</p>
-				
-				<div class="topics-cloud">
-					{#each room.topics as topic (topic.id)}
-						<button
-							class="topic-button"
-							class:selected={selectedTopics.includes(topic.id)}
-							class:disabled={!selectedTopics.includes(topic.id) && selectedTopics.length >= maxSelections}
-							on:click={() => toggleTopicSelection(topic.id)}
-						>
-							{topic.name}
-						</button>
-					{/each}
-				</div>
-
-				{#if selectedTopics.length > 0}
-				<div class="auto-save-status">
-					{#if isSubmitting}
-						<span class="saving">💾</span>
-					{:else}
-						<span class="saved">✅</span>
-					{/if}
-				</div>
-				{/if}
-			</div>
+		<div class="topic-selection">
+			<h2>Choose Your Topics</h2>
+			<p>Select up to {maxSelections} topics you're interested in discussing:</p>
+			<TopicSelector
+				topics={room.topics}
+				{selectedTopics}
+				{maxSelections}
+				{isSubmitting}
+				on:selectionChange={handleSelectionChange}
+			/>
+		</div>
 		{:else}
 			<!-- Results View -->
 			<div class="results-section">
@@ -378,7 +365,7 @@
 	}
 
 	.organizer-section {
-		background: var(--background-color);
+		background: var(--card-background-color);
 		border: 2px solid var(--secondary-color);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
@@ -475,65 +462,6 @@
 		cursor: not-allowed;
 	}
 
-	.selection-section {
-		background: var(--background-color);
-		border: 2px solid var(--border-color);
-		border-radius: 0.75rem;
-		padding: 1.5rem;
-		margin-bottom: 2rem;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	}
-
-	.topics-cloud {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.75rem;
-		margin: 1.5rem 0;
-	}
-
-	.topic-button {
-		padding: 0.75rem 1rem;
-		border: 2px solid var(--border-color);
-		border-radius: 2rem;
-		background: var(--background-color);
-		color: var(--text-color);
-		cursor: pointer;
-		transition: all 0.2s;
-		font-size: 0.9rem;
-	}
-
-	.topic-button:hover:not(.disabled) {
-		border-color: var(--primary-color);
-		transform: translateY(-1px);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-	}
-
-	.topic-button.selected {
-		background: var(--primary-color);
-		color: var(--button-text-color);
-		border-color: var(--primary-color);
-	}
-
-	.topic-button.disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-
-	.auto-save-status {
-		margin-top: 0.75rem;
-		font-size: 0.875rem;
-		text-align: right;
-		color: var(--help-text-color);
-	}
-
-	.saving {
-		color: var(--secondary-color);
-	}
-
-	.saved {
-		color: var(--primary-color);
-	}
-
 	.results-section {
 		background: var(--background-color);
 		border: 2px solid var(--primary-color);
@@ -583,12 +511,21 @@
 	}
 
 	.unassigned-notice {
-		background: var(--background-color);
+		background: var(--card-background-color);
 		border: 2px solid var(--secondary-color);
 		border-radius: 0.5rem;
 		padding: 1rem;
 		margin-top: 1.5rem;
 		color: var(--help-text-color);
+	}
+
+	.topic-selection {
+		background: var(--card-background-color);
+		border: 2px solid var(--border-color);
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		margin-bottom: 2rem;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
 	@media (max-width: 640px) {

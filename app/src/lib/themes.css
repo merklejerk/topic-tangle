@@ -8,6 +8,9 @@
   --button-disabled-bg: #9ca3af;
   --button-disabled-color: #ffffff;
   --button-text-color: #ffffff;
+  --card-background-color: #f9fafb;
+  --highlight-color: #3b82f6;
+  --highlight-text-color: #ffffff;
 }
 
 .theme-dark {
@@ -20,6 +23,9 @@
   --button-disabled-bg: #4b5563;
   --button-disabled-color: #d1d5db;
   --button-text-color: #ffffff;
+  --card-background-color: #374151;
+  --highlight-color: #6366f1;
+  --highlight-text-color: #ffffff;
 }
 
 .theme-birthday {
@@ -32,18 +38,24 @@
   --button-disabled-bg: #e4e4e7;
   --button-disabled-color: #9ca3af;
   --button-text-color: #374151;
+  --card-background-color: #ffffff;
+  --highlight-color: #ec4899;
+  --highlight-text-color: #ffffff;
 }
 
 .theme-neon {
   --background-color: #000000;
-  --text-color: #39ff14;
-  --primary-color: #ff073a;
-  --secondary-color: #ff77e9;
-  --border-color: #ff073a;
+  --text-color: #fff;
+  --primary-color: #f34848;
+  --secondary-color: #f663de;
+  --border-color: #828282;
   --help-text-color: #ff77e9;
   --button-disabled-bg: #4b5563;
   --button-disabled-color: #9ca3af;
-  --button-text-color: #39ff14;
+  --button-text-color: #ffffff;
+  --card-background-color: color-mix(in srgb, #111827 66%, transparent);
+  --highlight-color: #bca136;
+  --highlight-text-color: #ffffff;
 }
 
 body {
@@ -61,6 +73,7 @@ button {
   font-size: 1rem;
   padding: 0.75rem 1rem;
   transition: background-color 0.2s;
+  font-weight: bold;;
 }
 
 button:hover:not(:disabled) {
