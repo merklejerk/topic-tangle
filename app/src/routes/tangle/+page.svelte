@@ -532,9 +532,5 @@
 			flex-direction: column;
 			align-items: stretch;
 		}
-
-		.topics-cloud {
-			justify-content: center;
-		}
 	}
 </style>
