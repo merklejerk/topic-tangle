@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { flip } from 'svelte/animate';
+	import { resolve } from '$app/paths';
 	import { slide, scale } from 'svelte/transition';
 	import type { Topic } from '$lib/types';
     import { cubicIn, cubicOut } from 'svelte/easing';
@@ -21,7 +21,7 @@
 	let popSound: HTMLAudioElement;
 
 	onMount(() => {
-		popSound = new Audio('/pop.ogg');
+		popSound = new Audio(`${resolve('/')}/pop.ogg`);
 	});
 
 	function toggleTopicSelection(topicId: string) {
