@@ -63,6 +63,7 @@ body {
   color: var(--text-color);
   transition: background-color 0.5s, color 0.5s;
   margin: 0;
+  font-family: sans-serif;
 }
 
 button {
@@ -121,7 +122,6 @@ button:disabled {
   color: #9ca3af;
   cursor: not-allowed;
 }
-
 
 .btn-icon {
   background: none;
@@ -213,7 +213,6 @@ button:disabled {
   animation: neon-glow 30s ease infinite;
 }
 
-
 h1 {
   color: var(--text-color);
   font-weight: bold;
@@ -231,4 +230,9 @@ h2 {
   padding: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+}
+
+@font-face {
+  font-family: LogoFont;
+  src: url('/ChelaOne-Regular.ttf') format('truetype');
 }

@@ -11,7 +11,8 @@
 	import CoverScreen from '$lib/components/CoverScreen.svelte';
 	import type { RoomConfig, UserSelection, RoomResults, BreakoutGroup } from '$lib/types';
 	import '$lib/themes.css';
-    import ShareIcon from '$lib/components/ShareIcon.svelte';
+	import ShareIcon from '$lib/components/ShareIcon.svelte';
+	import { debounce } from 'underscore';
 
 	let room: RoomConfig | null = null;
 	let userSelections: UserSelection[] = [];
@@ -30,6 +31,10 @@
 	let userId: string = '';
 	const maxSelections = 3;
 
+	const debouncedSubmit = debounce(() => {
+		submitSelection();
+	}, 1000);
+
 	onMount(async () => {
 		currentUrl = window.location.href;
 		tangleId = $page.url.searchParams.get('id');
@@ -41,6 +46,8 @@
 
 	onDestroy(() => {
 		stopPolling();
+		// cancel any pending debounced call
+		if (debouncedSubmit.cancel) debouncedSubmit.cancel();
 	});
 
 	function stopPolling() {
@@ -160,7 +167,8 @@
 			}];
 		}
 
-		submitSelection();
+		// Debounced submit to avoid excessive API calls
+		debouncedSubmit();
 	}
 
 	async function submitSelection() {
@@ -216,8 +224,9 @@
 
 	$: if (roomResults) {
 		roomResults.groups.forEach(group => {
+			// Remove markdown links and any empty parentheses they leave behind.
 			group.icebreakerQuestions = group.icebreakerQuestions.map(question => 
-				question.replace(/\[.*?\]\(.*?\)/g, '') // Remove markdown links
+				question.replace(/\[.*?\]\(.*?\)/g, '').replace(/\(\)/g, '').trim()
 			);
 		});
 	}
@@ -308,7 +317,7 @@
 		{#if !roomResults}
 		<div class="topic-selection">
 			<h2>Choose Your Topics</h2>
-			<p>Select up to {maxSelections} topics you're interested in discussing:</p>
+			<p>Pick up to {maxSelections} topics you're want to discuss. You can change them any time.</p>
 			<TopicSelector
 				topics={room.topics}
 				{selectedTopics}
@@ -366,7 +375,6 @@
 	.container {
 		max-width: 800px;
 		margin: 0 auto;
-		font-family: system-ui, -apple-system, sans-serif;
 		color: var(--text-color);
 	}
 

@@ -179,7 +179,6 @@
 	.container {
 		max-width: 800px;
 		margin: 0 auto;
-		font-family: system-ui, -apple-system, sans-serif;
 		color: var(--text-color);
 	}
 

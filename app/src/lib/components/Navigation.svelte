@@ -37,12 +37,13 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		font-size: 1.5rem;
+		font-size: 1.75rem;
 	}
 
 	.logo-text {
 		color: var(--text-color);
 		font-weight: 700;
+		font-family: LogoFont, sans-serif;;
 		transition: color 0.2s;
 		text-shadow: 0 0 1em color-mix(in srgb, var(--secondary-color) 33%, transparent);
 	}
