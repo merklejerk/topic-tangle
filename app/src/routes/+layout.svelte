@@ -12,7 +12,7 @@
 
 <style>
 	:global(body) {
-		min-height: 100vh;
+		min-height: 100dvh;
 	}
 	main {
 		padding: 1rem;
