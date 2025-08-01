@@ -122,6 +122,40 @@ button:disabled {
   cursor: not-allowed;
 }
 
+
+.btn-icon {
+  background: none;
+  border: transparent;
+  border-radius: 50%;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 1em;
+  padding: 0;
+  font-size: 1.25em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+.btn-icon:hover {
+  transform: scale(1.1);
+  scale: 1.1 !important;
+  background-color: transparent;
+}
+
+.btn-icon:focus {
+  outline: none;
+  scale: 1.1 !important;
+  background-color: transparent;
+}
+
+.btn-icon.active {
+  background-color: var(--active-bg);
+}
+
 /* Small circular button (like topic remove buttons) */
 .btn-small {
   background: none;

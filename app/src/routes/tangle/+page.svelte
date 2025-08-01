@@ -8,8 +8,10 @@
 	import { themes, applyTheme } from '$lib/theme';
 	import ParticipationStats from '$lib/components/ParticipationStats.svelte';
 	import TopicSelector from '$lib/components/TopicSelector.svelte';
+	import CoverScreen from '$lib/components/CoverScreen.svelte';
 	import type { RoomConfig, UserSelection, RoomResults, BreakoutGroup } from '$lib/types';
 	import '$lib/themes.css';
+    import ShareIcon from '$lib/components/ShareIcon.svelte';
 
 	let room: RoomConfig | null = null;
 	let userSelections: UserSelection[] = [];
@@ -18,6 +20,7 @@
 	let isLoading = true;
 	let isSubmitting = false;
 	let isTangling = false;
+	let showQrCode = false;
 	let qrCodeDataUrl = '';
 	let currentUrl = '';
 	let cleanupPolling: (() => void) | null = null;
@@ -233,7 +236,10 @@
 		</div>
 	{:else}
 		<header>
-			<h1>Tangle: {room.id}</h1>
+			<div class="header-content">
+				<h1>Tangle {room.id}</h1>
+				<button class="btn-icon" on:click={() => showQrCode = true}><ShareIcon /></button>
+			</div>
 			<p>Created {formatDateTime(room.createdAt)}</p>
 		</header>
 
@@ -244,7 +250,7 @@
 					<div class="share-content">
 						<div class="qr-code">
 							{#if qrCodeDataUrl}
-								<img src={qrCodeDataUrl} alt="QR Code for tangle" />
+								<button class="qr-code-button" style={`background-image: url(${qrCodeDataUrl}) `} on:click={() => showQrCode = true} />
 							{/if}
 						</div>
 						<div class="link-section">
@@ -336,12 +342,32 @@
 	{/if}
 </div>
 
+{#if showQrCode}
+	<CoverScreen qrCodeDataUrl={qrCodeDataUrl} title={`Tangle ${room!.id}`} on:close={() => showQrCode = false} />
+{/if}
+
 <style>
 	.container {
 		max-width: 800px;
 		margin: 0 auto;
 		font-family: system-ui, -apple-system, sans-serif;
 		color: var(--text-color);
+	}
+
+	.header-content {
+		display: flex;
+		gap: 1rex;
+
+		> h1 {
+			display: inline;
+			min-width: max-content;
+		}
+		> button {
+			padding: 0;	
+		}
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 1rem;
 	}
 
 	.loading, .error {
@@ -379,11 +405,16 @@
 		text-align: center;
 	}
 
-	.qr-code img {
+	.qr-code-button {
+		height: 300px;	
 		width: 300px;
+		image-rendering: pixelated;
 		margin: 0 auto;
 		border-radius: 0.5rem;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+		background-size: cover;
+		background-position: center;
+		border: none;
+		cursor: zoom-in;
 	}
 
 	.link-section {
