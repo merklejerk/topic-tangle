@@ -191,7 +191,6 @@
 	.theme-picker-container {
 		display: flex;
 		justify-content: flex-end;
-		margin-top: 1rem;
 		font-size: 0.8rem;
 	}
 
@@ -207,7 +206,6 @@
 		}
 
 		.theme-picker-container {
-			margin-top: 0;
 			font-size: 1rem;
 		}
 	}
