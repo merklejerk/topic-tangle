@@ -69,7 +69,6 @@
 			room = await RoomAPI.getRoom(tangleId);
 			
 			if (room) {
-				console.log(room);
 				// Apply theme if room has a style field that matches a known theme
 				if (room.style && typeof room.style === 'string') {
 					const matchingTheme = themes.find(theme => 

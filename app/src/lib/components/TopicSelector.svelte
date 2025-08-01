@@ -20,10 +20,6 @@
 	// Add audio element for sound effect
 	let popSound: HTMLAudioElement;
 
-	onMount(() => {
-		popSound = new Audio(`${resolve('/')}/pop.ogg`);
-	});
-
 	function toggleTopicSelection(topicId: string) {
 		const wasSelected = selectedTopics.includes(topicId);
 		
@@ -56,7 +52,11 @@
 			}, 100); // Small delay to let the transition start
 		}
 		dispatch('selectionChange', { selectedTopics });
-	}</script><!-- Topic Selection -->
+	}
+</script><!-- Topic Selection -->
+
+<audio src={`${resolve('/')}pop.ogg`} bind:this={popSound}></audio>
+
 <div class="component">
 	<!-- Particle effect component -->
 	<div class="particle-effect-container">

@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { resolve } from '$app/paths';
 	import '$lib/themes.css';
 	import Logo from './Logo.svelte';
-    import { goto } from '$app/navigation';
 </script>
 
 <nav class="nav">

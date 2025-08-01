@@ -12,7 +12,6 @@
 
 <style>
 	main {
-		min-height: calc(100vh - 80px);
 		padding: 1rem;
 	}
 </style>
