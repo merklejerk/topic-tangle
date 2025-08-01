@@ -317,7 +317,7 @@
 		{#if !roomResults}
 		<div class="topic-selection">
 			<h2>Choose Your Topics</h2>
-			<p>Pick up to {maxSelections} topics you're want to discuss. You can change them any time.</p>
+			<p>Pick up to {maxSelections} topics you want to discuss. You can change them any time.</p>
 			<TopicSelector
 				topics={room.topics}
 				{selectedTopics}
