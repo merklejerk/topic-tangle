@@ -118,32 +118,48 @@
 		cleanupPolling = RoomAPI.createPollingSubscription(
 			() => RoomAPI.getRoomData(room!.id),
 			({ selections, results }) => {
-				userSelections = selections;
+				// Filter out the current user's selection from the polled data
+				// to prevent overwriting local changes that haven't been processed by the server yet.
+				const otherUserSelections = selections.filter(s => s.userId !== userId);
+				const currentUserSelection = userSelections.find(s => s.userId === userId);
+				
+				if (currentUserSelection) {
+					userSelections = [...otherUserSelections, currentUserSelection];
+				} else {
+					userSelections = otherUserSelections;
+				}
+
 				if (results) {
 					roomResults = results;
 					return false; // Stop polling when results are available
 				}
-				const currentUserSelection = selections.find((s) => s.userId === userId);
-				if (currentUserSelection) {
-					selectedTopics = currentUserSelection.selectedTopics;
-				} else {
-					selectedTopics = [];
-				}
+				
 				return true; // Continue polling otherwise
 			}
 		);
 	}
 
-	function toggleTopicSelection(topicId: string) {
-		if (selectedTopics.includes(topicId)) {
-			selectedTopics = selectedTopics.filter(id => id !== topicId);
-		} else if (selectedTopics.length < maxSelections) {
-			selectedTopics = [...selectedTopics, topicId];
-		}
-	}
-
 	function handleSelectionChange(event: CustomEvent) {
 		selectedTopics = event.detail.selectedTopics;
+
+		// Update userSelections array to reflect the change immediately for the UI
+		const currentUserSelectionIndex = userSelections.findIndex(s => s.userId === userId);
+		if (currentUserSelectionIndex !== -1) {
+			userSelections[currentUserSelectionIndex] = {
+				...userSelections[currentUserSelectionIndex],
+				selectedTopics: selectedTopics
+			};
+			userSelections = [...userSelections]; // Trigger reactivity
+		} else {
+			// If user had no previous selections, add a new one
+			userSelections = [...userSelections, {
+				userId,
+				roomId: room!.id,
+				selectedTopics,
+				updatedAt: new Date()
+			}];
+		}
+
 		submitSelection();
 	}
 

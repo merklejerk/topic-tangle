@@ -9,10 +9,30 @@
 	function close() {
 		dispatch('close');
 	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			close();
+		}
+	}
+
+	function handleCoverScreenKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			close();
+		}
+	}
 </script>
 
-<div class="cover-screen" on:click={close}>
-	<div class="content" on:click|stopPropagation>
+<svelte:window on:keydown={handleKeydown} />
+
+<div
+	class="cover-screen"
+	on:click={close}
+	on:keydown={handleCoverScreenKeydown}
+	role="button"
+	tabindex="-1"
+>
+	<div class="content" on:click|stopPropagation role="document">
 		<button class="close-button" on:click={close}>&times;</button>
 		<h1>{title}</h1>
 		{#if qrCodeDataUrl}

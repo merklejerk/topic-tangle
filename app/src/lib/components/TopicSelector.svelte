@@ -55,7 +55,10 @@
 	}
 </script><!-- Topic Selection -->
 
-<audio src={`${resolve('/')}pop.ogg`} bind:this={popSound}></audio>
+<audio bind:this={popSound} preload="auto">
+	<source src={`${resolve('/')}pop.mp3`} type="audio/mpeg" />
+	<source src={`${resolve('/')}pop.ogg`} type="audio/ogg" />
+</audio>
 
 <div class="component">
 	<!-- Particle effect component -->
