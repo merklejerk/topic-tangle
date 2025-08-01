@@ -192,6 +192,7 @@
 		display: flex;
 		justify-content: flex-end;
 		font-size: 0.8rem;
+		margin-top: -0.5rem;
 	}
 
 	@media (min-width: 768px) {
@@ -207,6 +208,13 @@
 
 		.theme-picker-container {
 			font-size: 1rem;
+		}
+	}
+
+	@media (max-width: 450px) {
+		.topic-input {
+			flex-direction: column;
+			justify-content: center;
 		}
 	}
 
@@ -227,6 +235,7 @@
 
 	.topic-input {
 		display: flex;
+		flex-wrap: wrap;
 		gap: 0.5rem;
 		margin-bottom: 1rem;
 	}
