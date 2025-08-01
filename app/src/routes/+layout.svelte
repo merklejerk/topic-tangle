@@ -11,6 +11,9 @@
 </main>
 
 <style>
+	:global(body) {
+		min-height: 100vh;
+	}
 	main {
 		padding: 1rem;
 	}
