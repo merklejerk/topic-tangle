@@ -246,7 +246,7 @@ const createTangleMiddleware = (config: { dataStore: IDataStore; pruneDurationSe
             } else {
                 // Non-organizers can only see their own selections.
                 const userSelection = selections.find(selection => selection.userId === userId);
-                return res.json({ selections: [userSelection], results });
+                return res.json({ selections: userSelection ? [userSelection] : [], results });
             }
         } catch (error) {
             console.error('Error getting room data:', error);
