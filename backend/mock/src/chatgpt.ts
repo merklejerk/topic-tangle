@@ -8,17 +8,20 @@ const IcebreakerSchema = z.object({
     items: z.array(
         z.object({
             topic: z.string(),
-            questions: z.array(z.string()).length(5)
+            questions: z.array(z.string()).length(3)
         }),
     ),
 }).describe('Icebreaker questions for each topic');
 
 const SYSTEM_PROMPT = [
-    `You are an expert in generating engaging icebreaker questions for group discussions between strangers.`,
-    `For each topic provided, generate 5 icebreaker discussion questions.`,
-    `Questions should be spicy, fun, thought-provoking, or controversial in nature to lead to spirited debate or discussion.`,
-    `For each topic, try to tie highly relevant recent news, developments, or trends into the questions.`,
+    `You are an expert in generating engaging ice-breaker questions for group discussions between strangers.`,
+    `For each topic provided, generate unique ice-breaker discussion questions.`,
     `Follow the same order as the topics provided.`,
+    `Questions should reflect trends in recent news that are relevant for that topic, without specifically mentioning a single news item.`,
+    `Questions should be kept broad to keep the discussion open-ended and non-intimidating.`,
+    `Questions should be thought-provoking or controversial in nature to result in spirited debate or discussion.`,
+    `Questions should be concise, catchy, and inviting.`,
+    `Try to avoid exploring the same news trends between topics so that each topic has distinct conversations.`
 ].join(' ');
 
 export async function generateIcebreakerQuestions(topics: string[]): Promise<{ topic: string; questions: string[] }[]> {
