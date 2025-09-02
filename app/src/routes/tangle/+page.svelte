@@ -519,7 +519,7 @@
 	}
 
 	.group-card.user-group {
-		border-color: var(--border-color);
+		border-color: var(--highlight-color);
 		border-width: 3px;
 	}
 

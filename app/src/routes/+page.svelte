@@ -9,7 +9,11 @@
 	import { currentTheme, themes, applyTheme } from '$lib/theme';
 	import { onMount } from 'svelte';
 
-	let topics: string[] = ['React', 'AI', 'Startups', 'Web Development', 'Data Science'];
+	let topics: string[] = [
+		'Prompt Engineering', 'AI Driven Development', 'AI Product Design',
+		'Machine Learning', 'AI Ethics', 'Local LLMs', 'New LLM Models',
+		'AI in Business', 'AI Security',
+	];
 	let currentTopic = '';
 	let minGroupSize = 3;
 	let maxGroupSize = 6;
